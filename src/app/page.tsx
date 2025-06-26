@@ -17,18 +17,15 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { UserValidator } from "@/zod/user.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const formSchema = z.object({
-    username: z.string().min(1, "Username is required"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-});
 
 export default function Home() {
-    const formState = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const formState = useForm<z.infer<typeof UserValidator>>({
+        resolver: zodResolver(UserValidator),
         defaultValues: {
             username: "",
             password: "",
