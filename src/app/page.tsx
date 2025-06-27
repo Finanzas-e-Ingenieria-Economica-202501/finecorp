@@ -17,6 +17,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { loginUser } from "@/services/auth.service";
 import { UserValidator } from "@/zod/user.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -32,8 +33,10 @@ export default function Home() {
         },
     });
 
-    const onSubmit = formState.handleSubmit((data) => {
-        console.log(data);
+    const onSubmit = formState.handleSubmit(async (data) => {
+        const result = await loginUser(data);
+
+        console.log(result);
     });
 
     return (
