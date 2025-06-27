@@ -31,7 +31,7 @@ export default function HeaderSidebarContent() {
     };
 
     return (
-        <header className="h-16 flex items-center px-4">
+        <header className="h-16 flex items-center px-4 gap-2">
             <SidebarTrigger />
 
             <h1>{getPageTitle(currentPath)}</h1>
