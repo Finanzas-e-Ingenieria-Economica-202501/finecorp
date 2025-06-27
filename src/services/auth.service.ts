@@ -2,9 +2,10 @@
 
 import { DEFAULTS } from "@/lib/defaults";
 import prisma from "@/lib/prisma";
+import { JWTPayload } from "@/types/jwt.types";
 import { UserValidator } from "@/zod/user.validator";
 import bcrypt from "bcrypt";
-import { jwtSign } from "./jwt.service";
+import { jwtSign, jwtVerify } from "./jwt.service";
 import { cookies } from "next/headers";
 
 export async function registerUser({
@@ -18,7 +19,11 @@ export async function registerUser({
     throw new Error("Username already exists");
   }
 
-  UserValidator.safeParse({ username, password });
+  const validation = UserValidator.safeParse({ username, password });
+  
+  if (!validation.success) {
+    throw new Error(validation.error.errors[0].message);
+  }
 
   const hashedPassword = await bcrypt.hash(password, DEFAULTS.SALT);
 
@@ -49,12 +54,12 @@ export async function loginUser({
     // I know we should not do this in production, but for this demo we can do it :3
     const result = await registerUser({ username, password });
 
-    cookiesStore.set("token", result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24, // 1 día
-      path: "/",
-    });
+  cookiesStore.set("token", result.token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    maxAge: DEFAULTS.JWT_EXPIRES_IN, // Usar el mismo tiempo de expiración que el JWT
+    path: "/",
+  });
 
     return result;
   }
@@ -70,9 +75,31 @@ export async function loginUser({
   cookiesStore.set("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24, // 1 día
+    maxAge: DEFAULTS.JWT_EXPIRES_IN, // Usar el mismo tiempo de expiración que el JWT
     path: "/",
   });
 
   return { username: user.username, id: user.id, token };
+}
+
+export async function logoutUser() {
+  const cookiesStore = await cookies();
+  
+  cookiesStore.delete("token");
+}
+
+export async function getCurrentUser(): Promise<JWTPayload> {
+  const token = (await cookies()).get("token")?.value;
+  
+  if (!token) {
+    throw new Error("No token found");
+  }
+  
+  try {
+    const decoded = await jwtVerify(token);
+    return decoded;
+  } catch (error) {
+    console.error("Error getting current user:", error);
+    throw new Error("Invalid token");
+  }
 }

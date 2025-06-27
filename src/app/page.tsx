@@ -20,11 +20,13 @@ import { Input } from "@/components/ui/input";
 import { loginUser } from "@/services/auth.service";
 import { UserValidator } from "@/zod/user.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 
 export default function Home() {
+    const router = useRouter();
     const formState = useForm<z.infer<typeof UserValidator>>({
         resolver: zodResolver(UserValidator),
         defaultValues: {
@@ -34,9 +36,14 @@ export default function Home() {
     });
 
     const onSubmit = formState.handleSubmit(async (data) => {
-        const result = await loginUser(data);
-
-        console.log(result);
+        try {
+            const result = await loginUser(data);
+            console.log(result);
+            router.push("/dashboard");
+        } catch (error) {
+            console.error("Login error:", error);
+            // Aquí podrías mostrar un toast o mensaje de error
+        }
     });
 
     return (
@@ -75,6 +82,7 @@ export default function Home() {
                                         <FormLabel>Password</FormLabel>
                                         <FormControl>
                                             <Input
+                                                type="password"
                                                 placeholder="Password"
                                                 {...field}
                                             />
