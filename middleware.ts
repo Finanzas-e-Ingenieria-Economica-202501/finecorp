@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "./src/services/jwt.service";
 
 export async function middleware(request: NextRequest) {
-  // Solo aplicar middleware a rutas del dashboard
+  // The JWT verification only applies to the dashboard route
   if (request.nextUrl.pathname.startsWith("/dashboard")) {
     const token = request.cookies.get("token")?.value;
 

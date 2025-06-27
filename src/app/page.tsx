@@ -39,7 +39,7 @@ export default function Home() {
         try {
             const result = await loginUser(data);
             console.log(result);
-            router.push("/dashboard");
+            router.push("/dashboard/home");
         } catch (error) {
             console.error("Login error:", error);
             // Aquí podrías mostrar un toast o mensaje de error
