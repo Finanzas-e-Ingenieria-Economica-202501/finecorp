@@ -1,8 +1,8 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import HeaderSidebarContent from "@/components/header-sidebar-content";
 import {
   SidebarInset,
   SidebarProvider,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getCurrentUser } from "@/services/auth.service";
 
@@ -25,7 +25,7 @@ export default async function DashboardLayout({
       <AppSidebar username={user?.username} />
       <SidebarInset>
         <main className="w-full">
-          <SidebarTrigger />
+          <HeaderSidebarContent />
           {children}
         </main>
       </SidebarInset>

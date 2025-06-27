@@ -1,4 +1,4 @@
-import { DollarSign } from "lucide-react";
+import { PATHS } from "@/lib/defaults";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -10,11 +10,7 @@ import {
 const items = [
   {
     label: "Cash Flow",
-    url: "/dashboard/cash-flows",
-  },
-  {
-    label: "Income Statement",
-    url: "/dashboard/income-statement",
+    url: PATHS.DASHBOARD.CASH_FLOWS.ROOT,
   },
 ];
 
@@ -28,7 +24,7 @@ export default function NavMain() {
               asChild
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
             >
-              <a href="/dashboard/cash-flows/new">
+              <a href={PATHS.DASHBOARD.CASH_FLOWS.NEW}>
                 <span>Quick Simulation</span>
               </a>
             </SidebarMenuButton>
