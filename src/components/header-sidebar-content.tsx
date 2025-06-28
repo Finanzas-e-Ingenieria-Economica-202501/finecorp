@@ -1,13 +1,23 @@
 "use client";
+import React from "react";
 import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "./ui/sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "./ui/breadcrumb";
+import Link from "next/link";
 
 export default function HeaderSidebarContent() {
     // Get the current PATH using Next.js hook
     const currentPath = usePathname();
 
-    // Function to format path as title
-    const getPageTitle = (path: string): string => {
+    // Function to generate breadcrumb items
+    const getBreadcrumbItems = (path: string) => {
         // Remove leading slash and split by '/'
         const segments = path.replace(/^\//, '').split('/');
         
@@ -16,25 +26,54 @@ export default function HeaderSidebarContent() {
             segment && segment.toLowerCase() !== 'dashboard'
         );
         
-        // If no segments remain, return default title
+        // If no segments remain, return empty array (no breadcrumbs)
         if (filteredSegments.length === 0) {
-            return 'Dashboard';
+            return [];
         }
         
-        // Take the last segment and format it
-        const lastSegment = filteredSegments[filteredSegments.length - 1];
+        // Build breadcrumb items without dashboard
+        const items: { name: string; path: string; isLast: boolean }[] = [];
         
-        // Convert kebab-case or snake_case to Title Case
-        return lastSegment
-            .replace(/[-_]/g, ' ')
-            .replace(/\b\w/g, char => char.toUpperCase());
+        filteredSegments.forEach((segment, index) => {
+            const segmentPath = '/dashboard/' + filteredSegments.slice(0, index + 1).join('/');
+            const segmentName = segment
+                .replace(/[-_]/g, ' ')
+                .replace(/\b\w/g, char => char.toUpperCase());
+            
+            items.push({
+                name: segmentName,
+                path: segmentPath,
+                isLast: index === filteredSegments.length - 1
+            });
+        });
+        
+        return items;
     };
+
+    const breadcrumbItems = getBreadcrumbItems(currentPath);
 
     return (
         <header className="h-16 flex items-center px-4 gap-2">
             <SidebarTrigger />
-
-            <h1>{getPageTitle(currentPath)}</h1>
+            
+            <Breadcrumb>
+                <BreadcrumbList>
+                    {breadcrumbItems.map((item) => (
+                        <React.Fragment key={item.path}>
+                            <BreadcrumbItem>
+                                {item.isLast ? (
+                                    <BreadcrumbPage>{item.name}</BreadcrumbPage>
+                                ) : (
+                                    <BreadcrumbLink asChild>
+                                        <Link href={item.path}>{item.name}</Link>
+                                    </BreadcrumbLink>
+                                )}
+                            </BreadcrumbItem>
+                            {!item.isLast && <BreadcrumbSeparator />}
+                        </React.Fragment>
+                    ))}
+                </BreadcrumbList>
+            </Breadcrumb>
         </header>
     );
 }
