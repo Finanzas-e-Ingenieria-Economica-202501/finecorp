@@ -11,26 +11,29 @@ datasource db {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model users {
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  username   String   @unique
-  password   String
-  id         String   @id @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username       String           @unique
+  password       String
+  created_at     DateTime?        @default(now()) @db.Timestamptz(6)
+  bond_valuation bond_valuation[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model bond_grace_period {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bond_valuation_id String            @db.Uuid
   period            Int
   type              grace_period_type @default(none)
-  duration          Int?
-  bond_valuation_id String            @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  id                String            @id @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  bond_valuation    bond_valuation    @relation(fields: [bond_valuation_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  duration          Int               @default(0)
+  bond_valuation    bond_valuation    @relation(fields: [bond_valuation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model bond_valuation {
+  id                            String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                       String?                @db.Uuid
   currency                      String                 @db.Char(3)
   interest_rate_type            interest_rate_type
   compounding_frequency         compounding_frequency?
@@ -57,8 +60,10 @@ model bond_valuation {
   investor_structuring_costs    Decimal?               @db.Decimal(20, 2)
   investor_legal_fees           Decimal?               @db.Decimal(20, 2)
   investor_other_costs          Decimal?               @db.Decimal(20, 2)
-  id                            String                 @id @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                    DateTime?              @default(now()) @db.Timestamptz(6)
+  updated_at                    DateTime?              @default(now()) @db.Timestamptz(6)
   bond_grace_period             bond_grace_period[]
+  users                         users?                 @relation(fields: [user_id], references: [id], onUpdate: NoAction)
 }
 
 enum amortization_method {

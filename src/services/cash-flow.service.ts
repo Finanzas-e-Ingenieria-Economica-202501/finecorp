@@ -33,9 +33,16 @@ export async function createCashFlowAction(formData: unknown) {
     return val as compounding_frequency | payment_frequency;
   }
 
+  // Get current user
+  const user = await getCurrentUser();
+  if (!user?.id) {
+    throw new Error("No active user session");
+  }
+
   // Save bond_valuation
   const bond = await prisma.bond_valuation.create({
     data: {
+      user_id: user.id, // Associate bond with current user
       currency: data.currency,
       interest_rate_type: data.interestRateType,
       compounding_frequency: mapEnum(data.compoundingFrequency, true) as compounding_frequency | null,
@@ -67,7 +74,6 @@ export async function createCashFlowAction(formData: unknown) {
           period: gp.period,
           type: gp.type,
           duration: gp.duration ?? 0,
-          // No se debe setear bond_valuation_id aquí, Prisma lo enlaza automáticamente
         })),
       } : undefined,
     },
@@ -91,6 +97,7 @@ export async function getAllCashFlows(): Promise<Bond[]> {
   const user = await getCurrentUser();
   if (!user) return [];
   const rawBonds = await prisma.bond_valuation.findMany({
+    where: { user_id: user.id }, // Only fetch bonds for current user
     orderBy: { emission_date: "desc" },
     select: {
       id: true,
