@@ -67,6 +67,7 @@ export const CashFlowFormValidator = z.object({
 
   // --- Plazo de gracia ---
   gracePeriod: z.array(z.object({
+    period: z.number().min(1, "Period must be at least 1"),
     type: z.nativeEnum(GracePeriodType).default(GracePeriodType.NONE),
     duration: z.number().min(0, "Grace period duration must be 0 or more").optional(),
   })),

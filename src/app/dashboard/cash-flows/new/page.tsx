@@ -27,7 +27,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import React from "react";
+import React, { useState } from "react";
 
 export default function NewCashFlowPage() {
     const formState = useForm({
@@ -75,20 +75,24 @@ export default function NewCashFlowPage() {
         name: "gracePeriod",
     });
 
-    // Sync gracePeriod array length with numberOfPeriods
-    React.useEffect(() => {
-        if (numberOfPeriods && numberOfPeriods > 0) {
-            if (fields.length < numberOfPeriods) {
-                for (let i = fields.length; i < numberOfPeriods; i++) {
-                    append({ type: GracePeriodType.NONE, duration: 0 });
-                }
-            } else if (fields.length > numberOfPeriods) {
-                for (let i = fields.length; i > numberOfPeriods; i--) {
-                    remove(i - 1);
-                }
-            }
-        }
-    }, [numberOfPeriods, fields.length, append, remove]);
+    // Grace period add form state
+    const [selectedPeriod, setSelectedPeriod] = useState(1);
+    const [selectedType, setSelectedType] = useState(GracePeriodType.NONE);
+
+    // Helper: get available periods (not already in gracePeriod)
+    const usedPeriods = fields.map((f) => f.period);
+    const availablePeriods = Array.from({ length: numberOfPeriods || 0 }, (_, i) => i + 1).filter(
+        (p) => !usedPeriods.includes(p)
+    );
+
+    // Add grace period entry
+    const handleAddGracePeriod = () => {
+        if (!selectedPeriod || !selectedType) return;
+        append({ period: selectedPeriod, type: selectedType, duration: selectedType === GracePeriodType.NONE ? 0 : 1 });
+        // Reset selectors
+        setSelectedPeriod(availablePeriods[0] || 1);
+        setSelectedType(GracePeriodType.NONE);
+    };
 
     const onSubmit = formState.handleSubmit((data) => {
         console.log("Form submitted with data:", data);
@@ -564,14 +568,57 @@ export default function NewCashFlowPage() {
                     </div>
 
                     <Separator className="my-4" />
-                    {/* Grace Period Section */}
+                    {/* Grace Period Section (new version) */}
                     <div className="space-y-2">
                         <h3 className="font-semibold text-lg">Grace Periods</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="flex flex-wrap gap-4 items-end">
+                            {/* Period selector */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Period</label>
+                                <select
+                                    className="border rounded px-2 py-1"
+                                    value={selectedPeriod}
+                                    onChange={e => setSelectedPeriod(Number(e.target.value))}
+                                    disabled={availablePeriods.length === 0}
+                                >
+                                    {availablePeriods.map((p) => (
+                                        <option key={p} value={p}>{p}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            {/* Type selector */}
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Type</label>
+                                <select
+                                    className="border rounded px-2 py-1"
+                                    value={selectedType}
+                                    onChange={e => setSelectedType(e.target.value as GracePeriodType)}
+                                >
+                                    <option value={GracePeriodType.NONE}>None</option>
+                                    <option value={GracePeriodType.PARTIAL}>Partial</option>
+                                    <option value={GracePeriodType.TOTAL}>Total</option>
+                                </select>
+                            </div>
+                            <button
+                                type="button"
+                                className="bg-primary text-white px-4 py-2 rounded disabled:opacity-50"
+                                onClick={handleAddGracePeriod}
+                                disabled={availablePeriods.length === 0}
+                            >
+                                Add
+                            </button>
+                        </div>
+                        {/* List of added grace periods */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                             {fields.map((field, idx) => (
                                 <div key={field.id} className="border rounded-md p-3 flex flex-col gap-2 bg-muted/30">
                                     <div className="flex items-center gap-2">
-                                        <span className="font-medium">Period {idx + 1}</span>
+                                        <span className="font-medium">Period {field.period}</span>
+                                        <button
+                                            type="button"
+                                            className="ml-auto text-red-500 hover:underline"
+                                            onClick={() => remove(idx)}
+                                        >Remove</button>
                                     </div>
                                     <FormField
                                         control={formState.control}
