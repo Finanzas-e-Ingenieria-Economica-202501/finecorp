@@ -19,7 +19,15 @@ import {
     PaymentFrequency,
 } from "@/zod/cash-flow-form.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray, useWatch } from "react-hook-form";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import React from "react";
 
 export default function NewCashFlowPage() {
     const formState = useForm({
@@ -29,19 +37,17 @@ export default function NewCashFlowPage() {
             bondName: "Bond Name",
             interestRateType: InterestRateType.EFFECTIVE,
             compoundingFrequency: CompoundingFrequency.ANNUAL,
-
             interestRate: 5.0,
             nominalValue: 100000,
             comercialValue: 100000,
+
             paymentFrequency: PaymentFrequency.MONTHLY,
             numberOfPeriods: 12,
             amortizationMethod: AmortizationMethod.GERMAN,
             emissionDate: new Date(),
-            maturityDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
-            gracePeriod: {
-                type: GracePeriodType.NONE,
-                duration: 0,
-            },
+            maturityDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+
+            gracePeriod: [],
             issuer: {
                 rate: 0,
                 taxesOrWithholding: 0,
@@ -63,6 +69,27 @@ export default function NewCashFlowPage() {
         },
     });
 
+    const numberOfPeriods = useWatch({ control: formState.control, name: "numberOfPeriods" });
+    const { fields, append, remove } = useFieldArray({
+        control: formState.control,
+        name: "gracePeriod",
+    });
+
+    // Sync gracePeriod array length with numberOfPeriods
+    React.useEffect(() => {
+        if (numberOfPeriods && numberOfPeriods > 0) {
+            if (fields.length < numberOfPeriods) {
+                for (let i = fields.length; i < numberOfPeriods; i++) {
+                    append({ type: GracePeriodType.NONE, duration: 0 });
+                }
+            } else if (fields.length > numberOfPeriods) {
+                for (let i = fields.length; i > numberOfPeriods; i--) {
+                    remove(i - 1);
+                }
+            }
+        }
+    }, [numberOfPeriods, fields.length, append, remove]);
+
     const onSubmit = formState.handleSubmit((data) => {
         console.log("Form submitted with data:", data);
     });
@@ -71,220 +98,536 @@ export default function NewCashFlowPage() {
         <div className="flex flex-col items-center justify-center h-full">
             <Form {...formState}>
                 <form onSubmit={onSubmit}>
-                    <FormField
-                        control={formState.control}
-                        name="bondName"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Bond Name</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Bond Name" {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                    This is your public display name.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                    <div className="space-y-4">
+                        <FormField
+                            control={formState.control}
+                            name="bondName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Bond Name</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="Bond Name"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        This is your public display name.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    {/* Selector de moneda */}
-                    <FormField
-                        control={formState.control}
-                        name="currency"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Currency</FormLabel>
-                                <FormControl>
-                                    <select
-                                        {...field}
-                                        className="input input-bordered w-full"
+                        {/* Selector de moneda */}
+                        <FormField
+                            control={formState.control}
+                            name="currency"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Currency</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
                                     >
-                                        <option value="USD">
-                                            USD - US Dollar
-                                        </option>
-                                        <option value="PEN">
-                                            PEN - Sol Peruano
-                                        </option>
-                                        <option value="EUR">EUR - Euro</option>
-                                        <option value="JPY">
-                                            JPY - Yen Japonés
-                                        </option>
-                                    </select>
-                                </FormControl>
-                                <FormDescription>
-                                    Select the currency for the bond.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select currency" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="USD">
+                                                USD - US Dollar
+                                            </SelectItem>
+                                            <SelectItem value="PEN">
+                                                PEN - Sol Peruano
+                                            </SelectItem>
+                                            <SelectItem value="EUR">
+                                                EUR - Euro
+                                            </SelectItem>
+                                            <SelectItem value="JPY">
+                                                JPY - Yen Japonés
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        Select the currency for the bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
                     <Separator className="my-4" />
-
-                    <FormField
-                        control={formState.control}
-                        name="interestRateType"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Interest Rate Type</FormLabel>
-                                <FormControl>
-                                    <select
-                                        {...field}
-                                        className="input input-bordered w-full"
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={formState.control}
+                            name="interestRateType"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Interest Rate Type</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
                                     >
-                                        <option
-                                            value={InterestRateType.NOMINAL}
-                                        >
-                                            Nominal
-                                        </option>
-                                        <option
-                                            value={InterestRateType.EFFECTIVE}
-                                        >
-                                            Effective
-                                        </option>
-                                    </select>
-                                </FormControl>
-                                <FormDescription>
-                                    Select the type of interest rate for the
-                                    bond.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select interest rate type" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem
+                                                value={InterestRateType.NOMINAL}
+                                            >
+                                                Nominal
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    InterestRateType.EFFECTIVE
+                                                }
+                                            >
+                                                Effective
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        Select the type of interest rate for the
+                                        bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        control={formState.control}
-                        name="compoundingFrequency"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Compounding Frequency</FormLabel>
-                                <FormControl>
-                                    <select
-                                        {...field}
-                                        className="input input-bordered w-full"
+                        <FormField
+                            control={formState.control}
+                            name="compoundingFrequency"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Compounding Frequency</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
                                     >
-                                        <option
-                                            value={CompoundingFrequency.ANNUAL}
-                                        >
-                                            Annual
-                                        </option>
-                                        <option
-                                            value={
-                                                CompoundingFrequency.SEMI_ANNUAL
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select compounding frequency" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem
+                                                value={
+                                                    CompoundingFrequency.ANNUAL
+                                                }
+                                            >
+                                                Annual
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    CompoundingFrequency.SEMI_ANNUAL
+                                                }
+                                            >
+                                                Semi-Annual
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    CompoundingFrequency.QUARTERLY
+                                                }
+                                            >
+                                                Quarterly
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    CompoundingFrequency.BIMONTHLY
+                                                }
+                                            >
+                                                Bimonthly
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    CompoundingFrequency.MONTHLY
+                                                }
+                                            >
+                                                Monthly
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    CompoundingFrequency.DAILY
+                                                }
+                                            >
+                                                Daily
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        Select the compounding frequency for the
+                                        bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="interestRate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Interest Rate (%)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            placeholder="5.0"
+                                            {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
-                                        >
-                                            Semi-Annual
-                                        </option>
-                                        <option
-                                            value={
-                                                CompoundingFrequency.QUARTERLY
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Enter the interest rate for the bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="nominalValue"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Nominal Value</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            placeholder="100000"
+                                            {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
-                                        >
-                                            Quarterly
-                                        </option>
-                                        <option
-                                            value={
-                                                CompoundingFrequency.BIMONTHLY
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Enter the nominal value of the bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="comercialValue"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Comercial Value</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            placeholder="100000"
+                                            {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    parseFloat(
+                                                        e.target.value
+                                                    ) || 0
+                                                )
                                             }
-                                        >
-                                            Bimonthly
-                                        </option>
-                                        <option
-                                            value={CompoundingFrequency.MONTHLY}
-                                        >
-                                            Monthly
-                                        </option>
-                                        <option
-                                            value={CompoundingFrequency.DAILY}
-                                        >
-                                            Daily
-                                        </option>
-                                    </select>
-                                </FormControl>
-                                <FormDescription>
-                                    Select the compounding frequency for the
-                                    bond.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Enter the comercial value of the bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
 
                     <Separator className="my-4" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                            control={formState.control}
+                            name="paymentFrequency"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Payment Frequency</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select payment frequency" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem
+                                                value={PaymentFrequency.ANNUAL}
+                                            >
+                                                Annual
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    PaymentFrequency.SEMI_ANNUAL
+                                                }
+                                            >
+                                                Semi-Annual
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    PaymentFrequency.QUARTERLY
+                                                }
+                                            >
+                                                Quarterly
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    PaymentFrequency.BIMONTHLY
+                                                }
+                                            >
+                                                Bimonthly
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={PaymentFrequency.MONTHLY}
+                                            >
+                                                Monthly
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={PaymentFrequency.DAILY}
+                                            >
+                                                Daily
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        Select the payment frequency for the
+                                        bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
-                    <FormField
-                        control={formState.control}
-                        name="interestRate"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Interest Rate (%)</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        placeholder="5.0"
-                                        {...field}
-                                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                        <FormField
+                            control={formState.control}
+                            name="numberOfPeriods"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Number of Periods</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="number"
+                                            min="1"
+                                            placeholder="12"
+                                            {...field}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    parseInt(e.target.value) ||
+                                                        1
+                                                )
+                                            }
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Enter the number of periods for the
+                                        bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="amortizationMethod"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Amortization Method</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select amortization method" />
+                                            </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem
+                                                value={
+                                                    AmortizationMethod.GERMAN
+                                                }
+                                            >
+                                                German
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    AmortizationMethod.FRENCH
+                                                }
+                                            >
+                                                French
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    AmortizationMethod.AMERICAN
+                                                }
+                                            >
+                                                American
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormDescription>
+                                        Select the amortization method for the
+                                        bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="emissionDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Emission Date</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="date"
+                                            value={
+                                                field.value
+                                                    ? new Date(field.value)
+                                                          .toISOString()
+                                                          .split("T")[0]
+                                                    : ""
+                                            }
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    new Date(e.target.value)
+                                                )
+                                            }
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Select the emission date for the bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="maturityDate"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Maturity Date</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="date"
+                                            value={
+                                                field.value
+                                                    ? new Date(field.value)
+                                                          .toISOString()
+                                                          .split("T")[0]
+                                                    : ""
+                                            }
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    new Date(e.target.value)
+                                                )
+                                            }
+                                        />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Select the maturity date for the bond.
+                                    </FormDescription>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <Separator className="my-4" />
+                    {/* Grace Period Section */}
+                    <div className="space-y-2">
+                        <h3 className="font-semibold text-lg">Grace Periods</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {fields.map((field, idx) => (
+                                <div key={field.id} className="border rounded-md p-3 flex flex-col gap-2 bg-muted/30">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-medium">Period {idx + 1}</span>
+                                    </div>
+                                    <FormField
+                                        control={formState.control}
+                                        name={`gracePeriod.${idx}.type`}
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Type</FormLabel>
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    value={field.value}
+                                                    defaultValue={field.value}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select type" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value={GracePeriodType.NONE}>None</SelectItem>
+                                                        <SelectItem value={GracePeriodType.PARTIAL}>Partial</SelectItem>
+                                                        <SelectItem value={GracePeriodType.TOTAL}>Total</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </FormControl>
-                                <FormDescription>
-                                    Enter the interest rate for the bond.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={formState.control}
-                        name="nominalValue"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Nominal Value</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        placeholder="100000"
-                                        {...field}
-                                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
+                                    {/* Duration only if not NONE */}
+                                    <FormField
+                                        control={formState.control}
+                                        name={`gracePeriod.${idx}.duration`}
+                                        render={({ field: durationField }) => (
+                                            <FormItem>
+                                                <FormLabel>Duration</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="number"
+                                                        min="0"
+                                                        disabled={formState.getValues(`gracePeriod.${idx}.type`) === GracePeriodType.NONE}
+                                                        value={durationField.value ?? 0}
+                                                        onChange={e => durationField.onChange(Number(e.target.value))}
+                                                    />
+                                                </FormControl>
+                                                <FormDescription>
+                                                    {formState.getValues(`gracePeriod.${idx}.type`) === GracePeriodType.NONE
+                                                        ? "No grace period for this period."
+                                                        : "Set the duration for this grace period (in periods)."}
+                                                </FormDescription>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
                                     />
-                                </FormControl>
-                                <FormDescription>
-                                    Enter the nominal value of the bond.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                    <FormField
-                        control={formState.control}
-                        name="comercialValue"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>Comercial Value</FormLabel>
-                                <FormControl>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        placeholder="100000"
-                                        {...field}
-                                        onChange={e => field.onChange(parseFloat(e.target.value) || 0)}
-                                    />
-                                </FormControl>
-                                <FormDescription>
-                                    Enter the comercial value of the bond.
-                                </FormDescription>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-
-                  
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </form>
             </Form>
         </div>

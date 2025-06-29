@@ -66,10 +66,10 @@ export const CashFlowFormValidator = z.object({
   maturityDate: z.date(),
 
   // --- Plazo de gracia ---
-  gracePeriod: z.object({
+  gracePeriod: z.array(z.object({
     type: z.nativeEnum(GracePeriodType).default(GracePeriodType.NONE),
     duration: z.number().min(0, "Grace period duration must be 0 or more").optional(),
-  }),
+  })),
 
   // --- Perspectiva del emisor ---
   issuer: z.object({
@@ -96,12 +96,3 @@ export const CashFlowFormValidator = z.object({
   message: "Maturity date must be after emission date",
   path: ["maturityDate"]
 })
-.refine(data => {
-  const type = data.gracePeriod.type;
-  const duration = data.gracePeriod.duration;
-  if (type === GracePeriodType.NONE) return true;
-  return typeof duration === "number" && duration > 0;
-}, {
-  message: "Grace period duration is required and must be positive when grace type is partial or total",
-  path: ["gracePeriod", "duration"]
-});
