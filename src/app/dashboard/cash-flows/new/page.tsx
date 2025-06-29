@@ -100,9 +100,9 @@ export default function NewCashFlowPage() {
     });
 
     return (
-        <div className="flex flex-col items-center justify-center h-full">
+        <div className="flex flex-col items-center justify-center h-full w-full px-4">
             <Form {...formState}>
-                <form onSubmit={onSubmit}>
+                <form onSubmit={onSubmit} className="w-full">
                     <div className="space-y-4">
                         <FormField
                             control={formState.control}
@@ -165,7 +165,9 @@ export default function NewCashFlowPage() {
                     </div>
 
                     <Separator className="my-4" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Interest Rate Type */}
                         <FormField
                             control={formState.control}
                             name="interestRateType"
@@ -182,29 +184,18 @@ export default function NewCashFlowPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem
-                                                value={InterestRateType.NOMINAL}
-                                            >
-                                                Nominal
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    InterestRateType.EFFECTIVE
-                                                }
-                                            >
-                                                Effective
-                                            </SelectItem>
+                                            <SelectItem value={InterestRateType.NOMINAL}>Nominal</SelectItem>
+                                            <SelectItem value={InterestRateType.EFFECTIVE}>Effective</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
-                                        Select the type of interest rate for the
-                                        bond.
+                                        Select the type of interest rate for the bond.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
+                        {/* Compounding Frequency */}
                         <FormField
                             control={formState.control}
                             name="compoundingFrequency"
@@ -221,59 +212,22 @@ export default function NewCashFlowPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem
-                                                value={
-                                                    CompoundingFrequency.ANNUAL
-                                                }
-                                            >
-                                                Annual
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    CompoundingFrequency.SEMI_ANNUAL
-                                                }
-                                            >
-                                                Semi-Annual
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    CompoundingFrequency.QUARTERLY
-                                                }
-                                            >
-                                                Quarterly
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    CompoundingFrequency.BIMONTHLY
-                                                }
-                                            >
-                                                Bimonthly
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    CompoundingFrequency.MONTHLY
-                                                }
-                                            >
-                                                Monthly
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    CompoundingFrequency.DAILY
-                                                }
-                                            >
-                                                Daily
-                                            </SelectItem>
+                                            <SelectItem value={CompoundingFrequency.ANNUAL}>Annual</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.SEMI_ANNUAL}>Semi-Annual</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.QUARTERLY}>Quarterly</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.BIMONTHLY}>Bimonthly</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.MONTHLY}>Monthly</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.DAILY}>Daily</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
-                                        Select the compounding frequency for the
-                                        bond.
+                                        Select the compounding frequency for the bond.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
+                        {/* Interest Rate */}
                         <FormField
                             control={formState.control}
                             name="interestRate"
@@ -289,9 +243,7 @@ export default function NewCashFlowPage() {
                                             {...field}
                                             onChange={(e) =>
                                                 field.onChange(
-                                                    parseFloat(
-                                                        e.target.value
-                                                    ) || 0
+                                                    parseFloat(e.target.value) || 0
                                                 )
                                             }
                                         />
@@ -303,7 +255,7 @@ export default function NewCashFlowPage() {
                                 </FormItem>
                             )}
                         />
-
+                        {/* Nominal Value */}
                         <FormField
                             control={formState.control}
                             name="nominalValue"
@@ -318,9 +270,7 @@ export default function NewCashFlowPage() {
                                             {...field}
                                             onChange={(e) =>
                                                 field.onChange(
-                                                    parseFloat(
-                                                        e.target.value
-                                                    ) || 0
+                                                    parseFloat(e.target.value) || 0
                                                 )
                                             }
                                         />
@@ -332,7 +282,7 @@ export default function NewCashFlowPage() {
                                 </FormItem>
                             )}
                         />
-
+                        {/* Comercial Value */}
                         <FormField
                             control={formState.control}
                             name="comercialValue"
@@ -347,9 +297,7 @@ export default function NewCashFlowPage() {
                                             {...field}
                                             onChange={(e) =>
                                                 field.onChange(
-                                                    parseFloat(
-                                                        e.target.value
-                                                    ) || 0
+                                                    parseFloat(e.target.value) || 0
                                                 )
                                             }
                                         />
@@ -361,10 +309,7 @@ export default function NewCashFlowPage() {
                                 </FormItem>
                             )}
                         />
-                    </div>
-
-                    <Separator className="my-4" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Payment Frequency */}
                         <FormField
                             control={formState.control}
                             name="paymentFrequency"
@@ -381,53 +326,22 @@ export default function NewCashFlowPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem
-                                                value={PaymentFrequency.ANNUAL}
-                                            >
-                                                Annual
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    PaymentFrequency.SEMI_ANNUAL
-                                                }
-                                            >
-                                                Semi-Annual
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    PaymentFrequency.QUARTERLY
-                                                }
-                                            >
-                                                Quarterly
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    PaymentFrequency.BIMONTHLY
-                                                }
-                                            >
-                                                Bimonthly
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={PaymentFrequency.MONTHLY}
-                                            >
-                                                Monthly
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={PaymentFrequency.DAILY}
-                                            >
-                                                Daily
-                                            </SelectItem>
+                                            <SelectItem value={PaymentFrequency.ANNUAL}>Annual</SelectItem>
+                                            <SelectItem value={PaymentFrequency.SEMI_ANNUAL}>Semi-Annual</SelectItem>
+                                            <SelectItem value={PaymentFrequency.QUARTERLY}>Quarterly</SelectItem>
+                                            <SelectItem value={PaymentFrequency.BIMONTHLY}>Bimonthly</SelectItem>
+                                            <SelectItem value={PaymentFrequency.MONTHLY}>Monthly</SelectItem>
+                                            <SelectItem value={PaymentFrequency.DAILY}>Daily</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
-                                        Select the payment frequency for the
-                                        bond.
+                                        Select the payment frequency for the bond.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
+                        {/* Number of Periods */}
                         <FormField
                             control={formState.control}
                             name="numberOfPeriods"
@@ -442,21 +356,19 @@ export default function NewCashFlowPage() {
                                             {...field}
                                             onChange={(e) =>
                                                 field.onChange(
-                                                    parseInt(e.target.value) ||
-                                                        1
+                                                    parseInt(e.target.value) || 1
                                                 )
                                             }
                                         />
                                     </FormControl>
                                     <FormDescription>
-                                        Enter the number of periods for the
-                                        bond.
+                                        Enter the number of periods for the bond.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
+                        {/* Amortization Method */}
                         <FormField
                             control={formState.control}
                             name="amortizationMethod"
@@ -473,38 +385,19 @@ export default function NewCashFlowPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem
-                                                value={
-                                                    AmortizationMethod.GERMAN
-                                                }
-                                            >
-                                                German
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    AmortizationMethod.FRENCH
-                                                }
-                                            >
-                                                French
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={
-                                                    AmortizationMethod.AMERICAN
-                                                }
-                                            >
-                                                American
-                                            </SelectItem>
+                                            <SelectItem value={AmortizationMethod.GERMAN}>German</SelectItem>
+                                            <SelectItem value={AmortizationMethod.FRENCH}>French</SelectItem>
+                                            <SelectItem value={AmortizationMethod.AMERICAN}>American</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
-                                        Select the amortization method for the
-                                        bond.
+                                        Select the amortization method for the bond.
                                     </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
-
+                        {/* Emission Date */}
                         <FormField
                             control={formState.control}
                             name="emissionDate"
@@ -514,18 +407,8 @@ export default function NewCashFlowPage() {
                                     <FormControl>
                                         <Input
                                             type="date"
-                                            value={
-                                                field.value
-                                                    ? new Date(field.value)
-                                                          .toISOString()
-                                                          .split("T")[0]
-                                                    : ""
-                                            }
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    new Date(e.target.value)
-                                                )
-                                            }
+                                            value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
+                                            onChange={(e) => field.onChange(new Date(e.target.value))}
                                         />
                                     </FormControl>
                                     <FormDescription>
@@ -535,7 +418,7 @@ export default function NewCashFlowPage() {
                                 </FormItem>
                             )}
                         />
-
+                        {/* Maturity Date */}
                         <FormField
                             control={formState.control}
                             name="maturityDate"
@@ -545,18 +428,8 @@ export default function NewCashFlowPage() {
                                     <FormControl>
                                         <Input
                                             type="date"
-                                            value={
-                                                field.value
-                                                    ? new Date(field.value)
-                                                          .toISOString()
-                                                          .split("T")[0]
-                                                    : ""
-                                            }
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    new Date(e.target.value)
-                                                )
-                                            }
+                                            value={field.value ? new Date(field.value).toISOString().split("T")[0] : ""}
+                                            onChange={(e) => field.onChange(new Date(e.target.value))}
                                         />
                                     </FormControl>
                                     <FormDescription>
@@ -569,7 +442,7 @@ export default function NewCashFlowPage() {
                     </div>
 
                     <Separator className="my-4" />
-                    {/* Grace Period Section (new version) */}
+
                     <div className="space-y-2">
                         <h3 className="font-semibold text-lg">Grace Periods</h3>
                         <div className="flex flex-wrap gap-4 items-end">
@@ -688,6 +561,10 @@ export default function NewCashFlowPage() {
                         </div>
                     </div>
                 </form>
+                {/* Botón de Create en la parte inferior derecha */}
+                <div className="flex justify-end mt-8 w-full">
+                    <Button type="submit" className="min-w-[120px]">Create</Button>
+                </div>
             </Form>
         </div>
     );
