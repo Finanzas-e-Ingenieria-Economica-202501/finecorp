@@ -17,6 +17,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { PATHS } from "@/lib/defaults";
 import { loginUser } from "@/services/auth.service";
 import { UserValidator } from "@/zod/user.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,8 +42,9 @@ export default function Home() {
             console.log(result);
             router.push("/dashboard/home");
         } catch (error) {
-            console.error("Login error:", error);
+            console.log("Login error:", error);
             // Aquí podrías mostrar un toast o mensaje de error
+            router.push(PATHS.LOGIN);
         }
     });
 
