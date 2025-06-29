@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/select";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { createCashFlowAction } from "@/services/cash-flow.service";
 
 export default function NewCashFlowPage() {
     const formState = useForm({
@@ -79,6 +81,7 @@ export default function NewCashFlowPage() {
     // Grace period add form state
     const [selectedPeriod, setSelectedPeriod] = useState(1);
     const [selectedType, setSelectedType] = useState(GracePeriodType.NONE);
+    const [loading, setLoading] = useState(false);
 
     // Helper: get available periods (not already in gracePeriod)
     const usedPeriods = fields.map((f) => f.period);
@@ -95,12 +98,38 @@ export default function NewCashFlowPage() {
         setSelectedType(GracePeriodType.NONE);
     };
 
-    const onSubmit = formState.handleSubmit((data) => {
-        console.log("Form submitted with data:", data);
+    const onSubmit = formState.handleSubmit(async (data) => {
+        setLoading(true);
+        try {
+            const result = await createCashFlowAction(data);
+            if (result && result.errors) {
+                toast.error("Validation error. Please check your input.");
+                // Optionally show field errors with toast or setError
+                setLoading(false);
+                return;
+            }
+            toast.success("Bond created successfully!");
+            // Redirect is handled by server action
+        } catch (err) {
+            console.error("Error creating bond:", err);
+            toast.error("An unexpected error occurred. Please try again.");
+            setLoading(false);
+        }
     });
 
     return (
         <div className="flex flex-col items-center justify-center h-full w-full px-4">
+            {loading && (
+                <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-zinc-900 rounded-lg p-8 flex flex-col items-center gap-4 shadow-lg">
+                        <svg className="animate-spin h-8 w-8 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                        </svg>
+                        <span className="text-lg font-medium">Creating bond...</span>
+                    </div>
+                </div>
+            )}
             <Form {...formState}>
                 <form onSubmit={onSubmit} className="w-full">
                     <div className="space-y-4">

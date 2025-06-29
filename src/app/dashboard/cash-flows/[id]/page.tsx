@@ -16,7 +16,7 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
 
   // Fetch bond and grace periods
   const bond = await prisma.bond_valuation.findUnique({
-    where: { id: Number(params.id) },
+    where: { id: params.id },
     include: { bond_grace_period: true },
   });
 

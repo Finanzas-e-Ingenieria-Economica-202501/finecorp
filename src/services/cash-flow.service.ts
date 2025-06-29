@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { CashFlowFormValidator } from "@/zod/cash-flow-form.validator";
 import { redirect } from "next/navigation";
 import type { compounding_frequency, payment_frequency } from "@/prisma/client";
+import { PATHS } from "@/lib/defaults";
 
 export async function createCashFlowAction(formData: unknown) {
   // Validate with Zod
@@ -13,6 +14,9 @@ export async function createCashFlowAction(formData: unknown) {
     return { errors: parsed.error.flatten() };
   }
   const data = parsed.data;
+
+  // DEBUG: Log all data before creation
+  console.log("[createCashFlowAction] Data to create:", JSON.stringify(data, null, 2));
 
   // Helper to map enums to DB values (for semi-annual, etc)
   function mapEnum(val: string | undefined, allowNull = false): compounding_frequency | payment_frequency | null | undefined {
@@ -50,17 +54,18 @@ export async function createCashFlowAction(formData: unknown) {
       investor_structuring_costs: data.investor.structuringCosts,
       investor_legal_fees: data.investor.legalFees,
       investor_other_costs: data.investor.otherCosts,
-      bond_grace_period: {
+      bond_grace_period: data.gracePeriod.length > 0 ? {
         create: data.gracePeriod.map((gp) => ({
           period: gp.period,
           type: gp.type,
           duration: gp.duration ?? 0,
+          // No se debe setear bond_valuation_id aquí, Prisma lo enlaza automáticamente
         })),
-      },
+      } : undefined,
     },
     include: { bond_grace_period: true },
   });
 
   // Redirect to the detail page
-  redirect(`/cash-flows/${bond.id}`);
+  redirect(PATHS.DASHBOARD.CASH_FLOWS.BY_ID(bond.id.toString()));
 }
