@@ -16,3 +16,82 @@ model users {
   password   String
   id         String   @id @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 }
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model bond_grace_period {
+  id                Int               @id @default(autoincrement())
+  bond_valuation_id Int
+  period            Int
+  type              grace_period_type @default(none)
+  duration          Int?
+  bond_valuation    bond_valuation    @relation(fields: [bond_valuation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model bond_valuation {
+  id                            Int                    @id @default(autoincrement())
+  currency                      String                 @db.Char(3)
+  interest_rate_type            interest_rate_type
+  compounding_frequency         compounding_frequency?
+  bond_name                     String                 @db.VarChar(255)
+  interest_rate                 Decimal                @db.Decimal(10, 6)
+  nominal_value                 Decimal                @db.Decimal(20, 2)
+  comercial_value               Decimal                @db.Decimal(20, 2)
+  payment_frequency             payment_frequency
+  number_of_periods             Int
+  amortization_method           amortization_method
+  emission_date                 DateTime               @db.Date
+  maturity_date                 DateTime               @db.Date
+  issuer_rate                   Decimal                @db.Decimal(10, 6)
+  issuer_taxes_or_withholding   Decimal?               @db.Decimal(20, 2)
+  issuer_fees                   Decimal?               @db.Decimal(20, 2)
+  issuer_initial_expenses       Decimal?               @db.Decimal(20, 2)
+  issuer_structuring_costs      Decimal?               @db.Decimal(20, 2)
+  issuer_legal_fees             Decimal?               @db.Decimal(20, 2)
+  issuer_other_costs            Decimal?               @db.Decimal(20, 2)
+  investor_rate                 Decimal                @db.Decimal(10, 6)
+  investor_taxes_or_withholding Decimal?               @db.Decimal(20, 2)
+  investor_fees                 Decimal?               @db.Decimal(20, 2)
+  investor_initial_expenses     Decimal?               @db.Decimal(20, 2)
+  investor_structuring_costs    Decimal?               @db.Decimal(20, 2)
+  investor_legal_fees           Decimal?               @db.Decimal(20, 2)
+  investor_other_costs          Decimal?               @db.Decimal(20, 2)
+  bond_grace_period             bond_grace_period[]
+}
+
+enum amortization_method {
+  german
+  french
+  american
+}
+
+enum compounding_frequency {
+  annual
+  semi_annual @map("semi-annual")
+  quarterly
+  bimonthly
+  monthly
+  daily
+}
+
+enum grace_period_type {
+  none
+  partial
+  total
+}
+
+enum interest_rate_type {
+  nominal
+  effective
+}
+
+enum payment_frequency {
+  annual
+  semi_annual @map("semi-annual")
+  quarterly
+  bimonthly
+  monthly
+  daily
+}

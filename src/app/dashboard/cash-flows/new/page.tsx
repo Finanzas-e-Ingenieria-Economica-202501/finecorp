@@ -560,11 +560,11 @@ export default function NewCashFlowPage() {
                             ))}
                         </div>
                     </div>
+                    {/* Botón de Create en la parte inferior derecha */}
+                    <div className="flex justify-end mt-8 w-full">
+                        <Button type="submit" className="min-w-[120px]">Create</Button>
+                    </div>
                 </form>
-                {/* Botón de Create en la parte inferior derecha */}
-                <div className="flex justify-end mt-8 w-full">
-                    <Button type="submit" className="min-w-[120px]">Create</Button>
-                </div>
             </Form>
         </div>
     );
