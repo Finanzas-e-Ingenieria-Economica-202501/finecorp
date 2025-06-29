@@ -5,6 +5,14 @@ import { CashFlowFormValidator } from "@/zod/cash-flow-form.validator";
 import { redirect } from "next/navigation";
 import type { compounding_frequency, payment_frequency } from "@/prisma/client";
 import { PATHS } from "@/lib/defaults";
+import { getCurrentUser } from "@/services/auth.service";
+
+interface Bond {
+  id: string;
+  name: string;
+  emissionDate: string;
+  nominalValue: number;
+}
 
 export async function createCashFlowAction(formData: unknown) {
   // Validate with Zod
@@ -68,4 +76,33 @@ export async function createCashFlowAction(formData: unknown) {
 
   // Redirect to the detail page
   redirect(PATHS.DASHBOARD.CASH_FLOWS.BY_ID(bond.id.toString()));
+}
+
+export async function deleteCashFlowAction(id: string) {
+  if (!id) return;
+  await prisma.bond_valuation.delete({ where: { id } });
+  try {
+    const { revalidatePath } = await import("next/cache");
+    revalidatePath("/dashboard/cash-flows");
+  } catch {}
+}
+
+export async function getAllCashFlows(): Promise<Bond[]> {
+  const user = await getCurrentUser();
+  if (!user) return [];
+  const rawBonds = await prisma.bond_valuation.findMany({
+    orderBy: { emission_date: "desc" },
+    select: {
+      id: true,
+      bond_name: true,
+      emission_date: true,
+      nominal_value: true,
+    },
+  });
+  return rawBonds.map((b) => ({
+    id: b.id,
+    name: b.bond_name,
+    emissionDate: b.emission_date instanceof Date ? b.emission_date.toISOString() : String(b.emission_date),
+    nominalValue: Number(b.nominal_value),
+  }));
 }
