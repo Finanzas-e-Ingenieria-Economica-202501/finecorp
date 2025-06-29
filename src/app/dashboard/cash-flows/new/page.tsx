@@ -28,6 +28,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function NewCashFlowPage() {
     const formState = useForm({
@@ -575,38 +576,49 @@ export default function NewCashFlowPage() {
                             {/* Period selector */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">Period</label>
-                                <select
-                                    className="border rounded px-2 py-1"
-                                    value={selectedPeriod}
-                                    onChange={e => setSelectedPeriod(Number(e.target.value))}
+                                <Select
+                                    value={selectedPeriod.toString()}
+                                    onValueChange={val => setSelectedPeriod(Number(val))}
                                     disabled={availablePeriods.length === 0}
                                 >
-                                    {availablePeriods.map((p) => (
-                                        <option key={p} value={p}>{p}</option>
-                                    ))}
-                                </select>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select period" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {availablePeriods.map((p) => (
+                                            <SelectItem key={p} value={p.toString()}>{p}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             {/* Type selector */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">Type</label>
-                                <select
-                                    className="border rounded px-2 py-1"
+                                <Select
                                     value={selectedType}
-                                    onChange={e => setSelectedType(e.target.value as GracePeriodType)}
+                                    onValueChange={val => setSelectedType(val as GracePeriodType)}
                                 >
-                                    <option value={GracePeriodType.NONE}>None</option>
-                                    <option value={GracePeriodType.PARTIAL}>Partial</option>
-                                    <option value={GracePeriodType.TOTAL}>Total</option>
-                                </select>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select type" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value={GracePeriodType.NONE}>None</SelectItem>
+                                        <SelectItem value={GracePeriodType.PARTIAL}>Partial</SelectItem>
+                                        <SelectItem value={GracePeriodType.TOTAL}>Total</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
-                            <button
+                            <Button
                                 type="button"
-                                className="bg-primary text-white px-4 py-2 rounded disabled:opacity-50"
                                 onClick={handleAddGracePeriod}
                                 disabled={availablePeriods.length === 0}
                             >
                                 Add
-                            </button>
+                            </Button>
                         </div>
                         {/* List of added grace periods */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
