@@ -12,12 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
     AmortizationMethod,
-    CashFlowFormValidator,
     CompoundingFrequency,
     GracePeriodType,
     InterestRateType,
     PaymentFrequency,
-} from "@/zod/cash-flow-form.validator";
+    Actor,
+} from "@/zod/cash-flow.enums";
+import { CashFlowFormValidator } from "@/zod/cash-flow-form.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import {
@@ -38,35 +39,26 @@ export default function NewCashFlowPage() {
         defaultValues: {
             currency: "USD",
             bondName: "Bond Name",
-            interestRateType: InterestRateType.EFFECTIVE,
-            compoundingFrequency: CompoundingFrequency.ANNUAL,
+            interestRateType: InterestRateType.effective,
+            compoundingFrequency: CompoundingFrequency.annual,
             interestRate: 5.0,
             nominalValue: 100000,
             comercialValue: 100000,
-
-            paymentFrequency: PaymentFrequency.MONTHLY,
+            paymentFrequency: PaymentFrequency.monthly,
             numberOfPeriods: 12,
-            amortizationMethod: AmortizationMethod.GERMAN,
+            amortizationMethod: AmortizationMethod.german,
             emissionDate: new Date(),
             maturityDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
-
+            prima: 0,
+            structuration: 0,
+            colocation: 0,
+            flotation: 0,
+            cavali: 0,
+            structurationApplyTo: Actor.emitter,
+            colocationApplyTo: Actor.emitter,
+            flotationApplyTo: Actor.both,
+            cavaliApplyTo: Actor.both,
             gracePeriod: [],
-            issuer: {
-                rate: 0,
-                premium: 0,
-                structuring: 0,
-                placement: 0,
-                flotation: 0,
-                cavali: 0,
-            },
-            investor: {
-                rate: 0,
-                premium: 0,
-                structuring: 0,
-                placement: 0,
-                flotation: 0,
-                cavali: 0,
-            },
         },
     });
 
@@ -78,7 +70,7 @@ export default function NewCashFlowPage() {
 
     // Grace period add form state
     const [selectedPeriod, setSelectedPeriod] = useState(1);
-    const [selectedType, setSelectedType] = useState(GracePeriodType.NONE);
+    const [selectedType, setSelectedType] = useState<GracePeriodType>(GracePeriodType.none);
     const [loading, setLoading] = useState(false);
 
     // Helper: get available periods (not already in gracePeriod)
@@ -90,10 +82,10 @@ export default function NewCashFlowPage() {
     // Add grace period entry
     const handleAddGracePeriod = () => {
         if (!selectedPeriod || !selectedType) return;
-        append({ period: selectedPeriod, type: selectedType, duration: selectedType === GracePeriodType.NONE ? 0 : 1 });
+        append({ period: selectedPeriod, type: selectedType, duration: selectedType === GracePeriodType.none ? 0 : 1 });
         // Reset selectors
         setSelectedPeriod(availablePeriods[0] || 1);
-        setSelectedType(GracePeriodType.NONE);
+        setSelectedType(GracePeriodType.none);
     };
 
     const onSubmit = formState.handleSubmit(async (data) => {
@@ -211,8 +203,8 @@ export default function NewCashFlowPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value={InterestRateType.NOMINAL}>Nominal</SelectItem>
-                                            <SelectItem value={InterestRateType.EFFECTIVE}>Effective</SelectItem>
+                                            <SelectItem value={InterestRateType.nominal}>Nominal</SelectItem>
+                                            <SelectItem value={InterestRateType.effective}>Effective</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
@@ -239,12 +231,12 @@ export default function NewCashFlowPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value={CompoundingFrequency.ANNUAL}>Annual</SelectItem>
-                                            <SelectItem value={CompoundingFrequency.SEMI_ANNUAL}>Semi-Annual</SelectItem>
-                                            <SelectItem value={CompoundingFrequency.QUARTERLY}>Quarterly</SelectItem>
-                                            <SelectItem value={CompoundingFrequency.BIMONTHLY}>Bimonthly</SelectItem>
-                                            <SelectItem value={CompoundingFrequency.MONTHLY}>Monthly</SelectItem>
-                                            <SelectItem value={CompoundingFrequency.DAILY}>Daily</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.annual}>Annual</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.semi_annual}>Semi-Annual</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.quarterly}>Quarterly</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.bimonthly}>Bimonthly</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.monthly}>Monthly</SelectItem>
+                                            <SelectItem value={CompoundingFrequency.daily}>Daily</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
@@ -353,12 +345,12 @@ export default function NewCashFlowPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value={PaymentFrequency.ANNUAL}>Annual</SelectItem>
-                                            <SelectItem value={PaymentFrequency.SEMI_ANNUAL}>Semi-Annual</SelectItem>
-                                            <SelectItem value={PaymentFrequency.QUARTERLY}>Quarterly</SelectItem>
-                                            <SelectItem value={PaymentFrequency.BIMONTHLY}>Bimonthly</SelectItem>
-                                            <SelectItem value={PaymentFrequency.MONTHLY}>Monthly</SelectItem>
-                                            <SelectItem value={PaymentFrequency.DAILY}>Daily</SelectItem>
+                                            <SelectItem value={PaymentFrequency.annual}>Annual</SelectItem>
+                                            <SelectItem value={PaymentFrequency.semi_annual}>Semi-Annual</SelectItem>
+                                            <SelectItem value={PaymentFrequency.quarterly}>Quarterly</SelectItem>
+                                            <SelectItem value={PaymentFrequency.bimonthly}>Bimonthly</SelectItem>
+                                            <SelectItem value={PaymentFrequency.monthly}>Monthly</SelectItem>
+                                            <SelectItem value={PaymentFrequency.daily}>Daily</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
@@ -412,9 +404,9 @@ export default function NewCashFlowPage() {
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value={AmortizationMethod.GERMAN}>German</SelectItem>
-                                            <SelectItem value={AmortizationMethod.FRENCH}>French</SelectItem>
-                                            <SelectItem value={AmortizationMethod.AMERICAN}>American</SelectItem>
+                                            <SelectItem value={AmortizationMethod.german}>German</SelectItem>
+                                            <SelectItem value={AmortizationMethod.french}>French</SelectItem>
+                                            <SelectItem value={AmortizationMethod.american}>American</SelectItem>
                                         </SelectContent>
                                     </Select>
                                     <FormDescription>
@@ -498,7 +490,7 @@ export default function NewCashFlowPage() {
                                 <label className="block text-sm font-medium mb-1">Type</label>
                                 <Select
                                     value={selectedType}
-                                    onValueChange={val => setSelectedType(val as GracePeriodType)}
+                                    onValueChange={val => setSelectedType(val as (typeof GracePeriodType)[keyof typeof GracePeriodType])}
                                 >
                                     <FormControl>
                                         <SelectTrigger>
@@ -506,9 +498,9 @@ export default function NewCashFlowPage() {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        <SelectItem value={GracePeriodType.NONE}>None</SelectItem>
-                                        <SelectItem value={GracePeriodType.PARTIAL}>Partial</SelectItem>
-                                        <SelectItem value={GracePeriodType.TOTAL}>Total</SelectItem>
+                                        <SelectItem value={GracePeriodType.none}>None</SelectItem>
+                                        <SelectItem value={GracePeriodType.partial}>Partial</SelectItem>
+                                        <SelectItem value={GracePeriodType.total}>Total</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -549,9 +541,9 @@ export default function NewCashFlowPage() {
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
-                                                        <SelectItem value={GracePeriodType.NONE}>None</SelectItem>
-                                                        <SelectItem value={GracePeriodType.PARTIAL}>Partial</SelectItem>
-                                                        <SelectItem value={GracePeriodType.TOTAL}>Total</SelectItem>
+                                                        <SelectItem value={GracePeriodType.none}>None</SelectItem>
+                                                        <SelectItem value={GracePeriodType.partial}>Partial</SelectItem>
+                                                        <SelectItem value={GracePeriodType.total}>Total</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                                 <FormMessage />
@@ -569,13 +561,13 @@ export default function NewCashFlowPage() {
                                                     <Input
                                                         type="number"
                                                         min="0"
-                                                        disabled={formState.getValues(`gracePeriod.${idx}.type`) === GracePeriodType.NONE}
+                                                        disabled={formState.getValues(`gracePeriod.${idx}.type`) === GracePeriodType.none}
                                                         value={durationField.value ?? 0}
                                                         onChange={e => durationField.onChange(Number(e.target.value))}
                                                     />
                                                 </FormControl>
                                                 <FormDescription>
-                                                    {formState.getValues(`gracePeriod.${idx}.type`) === GracePeriodType.NONE
+                                                    {formState.getValues(`gracePeriod.${idx}.type`) === GracePeriodType.none
                                                         ? "No grace period for this period."
                                                         : "Set the duration for this grace period (in periods)."}
                                                 </FormDescription>
@@ -590,109 +582,160 @@ export default function NewCashFlowPage() {
 
                     <Separator className="my-4" />
 
-                    {/* Issuer Section */}
+                    {/* Bond Costs Section */}
                     <div className="space-y-2">
-                        <h3 className="font-semibold text-lg">Issuer Costs</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <FormField control={formState.control} name="issuer.premium" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Premium (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={formState.control} name="issuer.structuring" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Structuring (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={formState.control} name="issuer.placement" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Placement (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={formState.control} name="issuer.flotation" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Flotation (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={formState.control} name="issuer.cavali" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>CAVALI (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                        </div>
-                    </div>
-
-                    <Separator className="my-4" />
-
-                    {/* Investor Section */}
-                    <div className="space-y-2">
-                        <h3 className="font-semibold text-lg">Investor Costs</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <FormField control={formState.control} name="investor.premium" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Premium (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={formState.control} name="investor.structuring" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Structuring (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={formState.control} name="investor.placement" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Placement (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={formState.control} name="investor.flotation" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Flotation (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
-                            <FormField control={formState.control} name="investor.cavali" render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>CAVALI (%)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )} />
+                        <h3 className="font-semibold text-lg">Bond Costs</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Premium */}
+                            <div className="flex flex-col gap-2">
+                                <FormField control={formState.control} name="prima" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Premium (%)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={formState.control} name="structurationApplyTo" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Apply Premium to</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select actor" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value={Actor.emitter}>Emitter</SelectItem>
+                                                <SelectItem value={Actor.bondholder}>Bondholder</SelectItem>
+                                                <SelectItem value={Actor.both}>Both</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+                            {/* Structuring */}
+                            <div className="flex flex-col gap-2">
+                                <FormField control={formState.control} name="structuration" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Structuring (%)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={formState.control} name="structurationApplyTo" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Apply Structuring to</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select actor" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value={Actor.emitter}>Emitter</SelectItem>
+                                                <SelectItem value={Actor.bondholder}>Bondholder</SelectItem>
+                                                <SelectItem value={Actor.both}>Both</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+                            {/* Placement */}
+                            <div className="flex flex-col gap-2">
+                                <FormField control={formState.control} name="colocation" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Placement (%)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={formState.control} name="colocationApplyTo" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Apply Placement to</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select actor" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value={Actor.emitter}>Emitter</SelectItem>
+                                                <SelectItem value={Actor.bondholder}>Bondholder</SelectItem>
+                                                <SelectItem value={Actor.both}>Both</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+                            {/* Flotation */}
+                            <div className="flex flex-col gap-2">
+                                <FormField control={formState.control} name="flotation" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Flotation (%)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={formState.control} name="flotationApplyTo" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Apply Flotation to</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select actor" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value={Actor.emitter}>Emitter</SelectItem>
+                                                <SelectItem value={Actor.bondholder}>Bondholder</SelectItem>
+                                                <SelectItem value={Actor.both}>Both</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
+                            {/* CAVALI */}
+                            <div className="flex flex-col gap-2">
+                                <FormField control={formState.control} name="cavali" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>CAVALI (%)</FormLabel>
+                                        <FormControl>
+                                            <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                                <FormField control={formState.control} name="cavaliApplyTo" render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Apply CAVALI to</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select actor" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value={Actor.emitter}>Emitter</SelectItem>
+                                                <SelectItem value={Actor.bondholder}>Bondholder</SelectItem>
+                                                <SelectItem value={Actor.both}>Both</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )} />
+                            </div>
                         </div>
                     </div>
 

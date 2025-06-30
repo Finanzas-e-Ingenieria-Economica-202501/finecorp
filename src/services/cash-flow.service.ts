@@ -3,7 +3,6 @@
 import prisma from "@/lib/prisma";
 import { CashFlowFormValidator } from "@/zod/cash-flow-form.validator";
 import { redirect } from "next/navigation";
-import type { compounding_frequency, payment_frequency } from "@/prisma/client";
 import { PATHS } from "@/lib/defaults";
 import { getCurrentUser } from "@/services/auth.service";
 
@@ -26,13 +25,6 @@ export async function createCashFlowAction(formData: unknown) {
   // DEBUG: Log all data before creation
   console.log("[createCashFlowAction] Data to create:", JSON.stringify(data, null, 2));
 
-  // Helper to map enums to DB values (for semi-annual, etc)
-  function mapEnum(val: string | undefined, allowNull = false): compounding_frequency | payment_frequency | null | undefined {
-    if (!val) return allowNull ? null : undefined;
-    if (val === "semi-annual") return "semi_annual";
-    return val as compounding_frequency | payment_frequency;
-  }
-
   // Get current user
   const user = await getCurrentUser();
   if (!user?.id) {
@@ -45,28 +37,25 @@ export async function createCashFlowAction(formData: unknown) {
       user_id: user.id, // Associate bond with current user
       currency: data.currency,
       interest_rate_type: data.interestRateType,
-      compounding_frequency: mapEnum(data.compoundingFrequency, true) as compounding_frequency | null,
+      compounding_frequency: data.compoundingFrequency ?? null,
       bond_name: data.bondName,
       interest_rate: data.interestRate,
       nominal_value: data.nominalValue,
       comercial_value: data.comercialValue,
-      payment_frequency: mapEnum(data.paymentFrequency) as payment_frequency,
+      payment_frequency: data.paymentFrequency,
       number_of_periods: data.numberOfPeriods,
       amortization_method: data.amortizationMethod,
       emission_date: data.emissionDate,
       maturity_date: data.maturityDate,
-      issuer_rate: data.issuer.rate,
-      issuer_premium: data.issuer.premium,
-      issuer_structuring: data.issuer.structuring,
-      issuer_placement: data.issuer.placement,
-      issuer_flotation: data.issuer.flotation,
-      issuer_cavali: data.issuer.cavali,
-      investor_rate: data.investor.rate,
-      investor_premium: data.investor.premium,
-      investor_structuring: data.investor.structuring,
-      investor_placement: data.investor.placement,
-      investor_flotation: data.investor.flotation,
-      investor_cavali: data.investor.cavali,
+      prima: data.prima ?? 0,
+      structuration: data.structuration ?? 0,
+      colocation: data.colocation ?? 0,
+      flotation: data.flotation ?? 0,
+      cavali: data.cavali ?? 0,
+      structuration_apply_to: data.structurationApplyTo,
+      colocation_apply_to: data.colocationApplyTo,
+      flotation_apply_to: data.flotationApplyTo,
+      cavali_apply_to: data.cavaliApplyTo,
       bond_grace_period: data.gracePeriod.length > 0 ? {
         create: data.gracePeriod.map((gp) => ({
           period: gp.period,
