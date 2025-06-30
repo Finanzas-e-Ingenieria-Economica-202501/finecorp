@@ -14,6 +14,7 @@ export const PATHS = {
             ROOT: "/dashboard/cash-flows",
             NEW: "/dashboard/cash-flows/new",
             BY_ID: (id: string) => `/dashboard/cash-flows/${id}`,
+            EDIT: (id: string) => `/dashboard/cash-flows/edit/${id}`,
         }
     },
     LOGIN: "/",

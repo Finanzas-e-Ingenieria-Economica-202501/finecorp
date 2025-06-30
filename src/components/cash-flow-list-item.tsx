@@ -30,10 +30,16 @@ export function CashFlowListItem({ bond, onDeleted }: CashFlowListItemProps) {
       <span className="text-sm">
         Nominal: {Number(bond.nominal_value).toLocaleString(undefined, { style: 'currency', currency: 'USD' })}
       </span>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <Button type="button" variant="destructive" size="sm" className="mt-2 w-fit">Delete</Button>
-        </AlertDialogTrigger>
+      <div className="flex gap-2 mt-2">
+        <Link href={PATHS.DASHBOARD.CASH_FLOWS.EDIT(bond.id)}>
+          <Button type="button" variant="outline" size="sm">
+            Edit
+          </Button>
+        </Link>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button type="button" variant="destructive" size="sm">Delete</Button>
+          </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this cash flow?</AlertDialogTitle>
@@ -59,6 +65,7 @@ export function CashFlowListItem({ bond, onDeleted }: CashFlowListItemProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
     </li>
   );
 }
