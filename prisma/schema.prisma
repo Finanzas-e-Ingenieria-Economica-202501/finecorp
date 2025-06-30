@@ -21,12 +21,12 @@ model users {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model bond_grace_period {
-  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  bond_valuation_id String            @db.Uuid
+  id                String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bond_valuation_id String             @db.Uuid
   period            Int
-  type              grace_period_type @default(none)
-  duration          Int               @default(0)
-  bond_valuation    bond_valuation    @relation(fields: [bond_valuation_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  type              grace_period_type? @default(none)
+  duration          Int?               @default(0)
+  bond_valuation    bond_valuation     @relation(fields: [bond_valuation_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_bond_valuation")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -37,6 +37,7 @@ model bond_valuation {
   currency               String                 @db.Char(3)
   interest_rate_type     interest_rate_type
   compounding_frequency  compounding_frequency?
+  days_per_year          Int                    @default(360)
   bond_name              String                 @db.VarChar(255)
   interest_rate          Decimal                @db.Decimal(10, 6)
   nominal_value          Decimal                @db.Decimal(20, 2)
@@ -47,19 +48,19 @@ model bond_valuation {
   emission_date          DateTime               @db.Date
   created_at             DateTime?              @default(now()) @db.Timestamptz(6)
   updated_at             DateTime?              @default(now()) @db.Timestamptz(6)
-  prima                  Decimal                @db.Decimal
-  structuration          Decimal                @db.Decimal
-  colocation             Decimal                @db.Decimal
-  flotation              Decimal                @db.Decimal
-  cavali                 Decimal                @db.Decimal
-  structuration_apply_to actor                  @default(emitter)
-  colocation_apply_to    actor                  @default(emitter)
-  flotation_apply_to     actor                  @default(both)
-  cavali_apply_to        actor                  @default(both)
-  cok                    Decimal?               @db.Decimal(10, 6)
-  income_tax             Decimal?               @db.Decimal(10, 6)
+  prima                  Decimal?               @default(0) @db.Decimal(10, 6)
+  structuration          Decimal?               @default(0) @db.Decimal(10, 6)
+  colocation             Decimal?               @default(0) @db.Decimal(10, 6)
+  flotation              Decimal?               @default(0) @db.Decimal(10, 6)
+  cavali                 Decimal?               @default(0) @db.Decimal(10, 6)
+  structuration_apply_to actor?                 @default(emitter)
+  colocation_apply_to    actor?                 @default(emitter)
+  flotation_apply_to     actor?                 @default(both)
+  cavali_apply_to        actor?                 @default(both)
+  cok                    Decimal                @db.Decimal(10, 6)
+  income_tax             Decimal?               @default(0) @db.Decimal(10, 6)
   bond_grace_period      bond_grace_period[]
-  users                  users                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                  users                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
 }
 
 enum amortization_method {
@@ -74,7 +75,6 @@ enum compounding_frequency {
   quarterly
   bimonthly
   monthly
-  biweekly
   daily
 }
 
@@ -95,7 +95,6 @@ enum payment_frequency {
   quarterly
   bimonthly
   monthly
-  biweekly
   daily
 }
 
