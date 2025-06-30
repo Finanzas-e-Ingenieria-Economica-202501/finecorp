@@ -33,7 +33,7 @@ model bond_grace_period {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model bond_valuation {
   id                     String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id                String?                @db.Uuid
+  user_id                String                 @db.Uuid
   currency               String                 @db.Char(3)
   interest_rate_type     interest_rate_type
   compounding_frequency  compounding_frequency?
@@ -58,7 +58,7 @@ model bond_valuation {
   flotation_apply_to     actor                  @default(both)
   cavali_apply_to        actor                  @default(both)
   bond_grace_period      bond_grace_period[]
-  users                  users?                 @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users                  users                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum amortization_method {

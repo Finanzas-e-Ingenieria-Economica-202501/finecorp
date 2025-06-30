@@ -90,6 +90,8 @@ export async function logoutUser() {
 
 export async function getCurrentUser(): Promise<JWTPayload> {
   const token = (await cookies()).get("token")?.value;
+  console.log("token", token)
+  
   
   if (!token) {
     throw new Error("No token found");
