@@ -27,7 +27,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createCashFlowAction } from "@/services/cash-flow.service";
@@ -66,6 +66,14 @@ export default function NewCashFlowPage() {
         control: formState.control,
         name: "interestRateType",
     });
+    const years = useWatch({
+        control: formState.control,
+        name: "years",
+    });
+    const paymentFrequency = useWatch({
+        control: formState.control,
+        name: "paymentFrequency",
+    });
     const { fields, append, remove } = useFieldArray({
         control: formState.control,
         name: "gracePeriod",
@@ -78,23 +86,58 @@ export default function NewCashFlowPage() {
     );
     const [loading, setLoading] = useState(false);
 
+    // Helper: calculate total payment periods based on years and payment frequency
+    const getPaymentPeriodsPerYear = (frequency: PaymentFrequency): number => {
+        switch (frequency) {
+            case PaymentFrequency.annual:
+                return 1;
+            case PaymentFrequency.semi_annual:
+                return 2;
+            case PaymentFrequency.quarterly:
+                return 4;
+            case PaymentFrequency.bimonthly:
+                return 6;
+            case PaymentFrequency.monthly:
+                return 12;
+            case PaymentFrequency.daily:
+                return 365;
+            default:
+                return 1;
+        }
+    };
+
+    const calculateTotalPeriods = (): number => {
+        const yearsValue = typeof years === 'string' ? parseInt(years) || 0 : years || 0;
+        const periodsPerYear = getPaymentPeriodsPerYear(paymentFrequency);
+        return yearsValue * periodsPerYear;
+    };
+
     // Helper: get available periods (not already in gracePeriod)
     const usedPeriods = fields.map((f) => f.period);
+    const totalPeriods = calculateTotalPeriods();
     const availablePeriods = Array.from(
-        { length: formState.getValues("years") || 0 },
+        { length: totalPeriods },
         (_, i) => i + 1
     ).filter((p) => !usedPeriods.includes(p));
 
+    // Update selectedPeriod when available periods change
+    useEffect(() => {
+        if (availablePeriods.length > 0 && !availablePeriods.includes(selectedPeriod)) {
+            setSelectedPeriod(availablePeriods[0]);
+        }
+    }, [availablePeriods, selectedPeriod]);
+
     // Add grace period entry
     const handleAddGracePeriod = () => {
-        if (!selectedPeriod || !selectedType) return;
+        if (!selectedPeriod || !selectedType || availablePeriods.length === 0) return;
         append({
             period: selectedPeriod,
             type: selectedType,
             duration: selectedType === GracePeriodType.none ? 0 : 1,
         });
-        // Reset selectors
-        setSelectedPeriod(availablePeriods[0] || 1);
+        // Reset selectors to the first available period, or 1 if none available
+        const nextAvailablePeriod = availablePeriods.filter(p => p !== selectedPeriod)[0];
+        setSelectedPeriod(nextAvailablePeriod || 1);
         setSelectedType(GracePeriodType.none);
     };
 
@@ -479,7 +522,19 @@ export default function NewCashFlowPage() {
                     <Separator className="my-4" />
 
                     <div className="space-y-2">
-                        <h3 className="font-semibold text-lg">Grace Periods</h3>
+                        <div className="flex flex-col gap-1">
+                            <h3 className="font-semibold text-lg">Grace Periods</h3>
+                            {totalPeriods > 0 && (
+                                <p className="text-sm text-muted-foreground">
+                                    Total payment periods: {totalPeriods} (based on {typeof years === 'string' ? years : years || 0} year{(typeof years === 'string' ? parseInt(years) : years || 0) !== 1 ? 's' : ''} with {paymentFrequency.replace('_', '-')} payments)
+                                </p>
+                            )}
+                            {availablePeriods.length === 0 && totalPeriods > 0 && (
+                                <p className="text-sm text-amber-600">
+                                    All payment periods have grace periods assigned
+                                </p>
+                            )}
+                        </div>
                         <div className="flex flex-wrap gap-4 items-end">
                             {/* Period selector */}
                             <div>
