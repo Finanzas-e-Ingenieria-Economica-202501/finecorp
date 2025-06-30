@@ -38,6 +38,7 @@ export async function createCashFlowAction(formData: unknown) {
       currency: data.currency,
       interest_rate_type: data.interestRateType,
       compounding_frequency: data.compoundingFrequency ?? null,
+      days_per_year: data.daysPerYear,
       bond_name: data.bondName,
       interest_rate: data.interestRate,
       nominal_value: data.nominalValue,
@@ -55,8 +56,8 @@ export async function createCashFlowAction(formData: unknown) {
       colocation_apply_to: data.colocationApplyTo,
       flotation_apply_to: data.flotationApplyTo,
       cavali_apply_to: data.cavaliApplyTo,
-      cok: typeof data.cok === "number" ? data.cok : undefined,
-      income_tax: typeof data.income_tax === "number" ? data.income_tax : undefined,
+      cok: data.cok,
+      income_tax: data.income_tax ?? 0,
       bond_grace_period: data.gracePeriod.length > 0 ? {
         create: data.gracePeriod.map((gp) => ({
           period: gp.period,
@@ -193,6 +194,7 @@ export async function updateCashFlowAction(id: string, formData: unknown) {
       currency: data.currency,
       interest_rate_type: data.interestRateType,
       compounding_frequency: data.compoundingFrequency ?? null,
+      days_per_year: data.daysPerYear,
       bond_name: data.bondName,
       interest_rate: data.interestRate,
       nominal_value: data.nominalValue,
@@ -210,8 +212,8 @@ export async function updateCashFlowAction(id: string, formData: unknown) {
       colocation_apply_to: data.colocationApplyTo,
       flotation_apply_to: data.flotationApplyTo,
       cavali_apply_to: data.cavaliApplyTo,
-      cok: typeof data.cok === "number" ? data.cok : undefined,
-      income_tax: typeof data.income_tax === "number" ? data.income_tax : undefined,
+      cok: data.cok,
+      income_tax: data.income_tax ?? 0,
       bond_grace_period: data.gracePeriod.length > 0 ? {
         create: data.gracePeriod.map((gp) => ({
           period: gp.period,
