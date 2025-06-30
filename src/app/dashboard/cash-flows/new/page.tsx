@@ -53,21 +53,19 @@ export default function NewCashFlowPage() {
             gracePeriod: [],
             issuer: {
                 rate: 0,
-                taxesOrWithholding: 0,
-                fees: 0,
-                initialExpenses: 0,
-                structuringCosts: 0,
-                legalFees: 0,
-                otherCosts: 0,
+                premium: 0,
+                structuring: 0,
+                placement: 0,
+                flotation: 0,
+                cavali: 0,
             },
             investor: {
                 rate: 0,
-                taxesOrWithholding: 0,
-                fees: 0,
-                initialExpenses: 0,
-                structuringCosts: 0,
-                legalFees: 0,
-                otherCosts: 0,
+                premium: 0,
+                structuring: 0,
+                placement: 0,
+                flotation: 0,
+                cavali: 0,
             },
         },
     });
@@ -589,6 +587,115 @@ export default function NewCashFlowPage() {
                             ))}
                         </div>
                     </div>
+
+                    <Separator className="my-4" />
+
+                    {/* Issuer Section */}
+                    <div className="space-y-2">
+                        <h3 className="font-semibold text-lg">Issuer Costs</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <FormField control={formState.control} name="issuer.premium" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Premium (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={formState.control} name="issuer.structuring" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Structuring (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={formState.control} name="issuer.placement" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Placement (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={formState.control} name="issuer.flotation" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Flotation (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={formState.control} name="issuer.cavali" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>CAVALI (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </div>
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    {/* Investor Section */}
+                    <div className="space-y-2">
+                        <h3 className="font-semibold text-lg">Investor Costs</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <FormField control={formState.control} name="investor.premium" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Premium (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={formState.control} name="investor.structuring" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Structuring (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={formState.control} name="investor.placement" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Placement (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={formState.control} name="investor.flotation" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Flotation (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                            <FormField control={formState.control} name="investor.cavali" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>CAVALI (%)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" step="0.01" min="0" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </div>
+                    </div>
+
                     {/* Botón de Create en la parte inferior derecha */}
                     <div className="flex justify-end mt-8 w-full">
                         <Button type="submit" className="min-w-[120px]">Create</Button>

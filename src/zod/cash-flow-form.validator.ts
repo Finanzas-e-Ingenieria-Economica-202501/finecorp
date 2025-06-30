@@ -37,12 +37,11 @@ export enum GracePeriodType {
 
 // Reusable cost fields for issuer and investor
 const CostFields = z.object({
-  taxesOrWithholding: z.coerce.number().min(0, "Taxes or withholding must be positive").optional(),
-  fees: z.coerce.number().min(0, "Fees must be positive").optional(),
-  initialExpenses: z.coerce.number().min(0, "Initial expenses must be positive").optional(),
-  structuringCosts: z.coerce.number().min(0, "Structuring costs must be positive").optional(),
-  legalFees: z.coerce.number().min(0, "Legal fees must be positive").optional(),
-  otherCosts: z.coerce.number().min(0, "Other costs must be positive").optional(),
+  premium: z.coerce.number().min(0, "Premium must be positive").optional(), // % Prima
+  structuring: z.coerce.number().min(0, "Structuring must be positive").optional(), // % Estructuración
+  placement: z.coerce.number().min(0, "Placement must be positive").optional(), // % Colocación
+  flotation: z.coerce.number().min(0, "Flotation must be positive").optional(), // % Flotación
+  cavali: z.coerce.number().min(0, "CAVALI must be positive").optional(), // % CAVALI
 });
 
 export const CashFlowFormValidator = z.object({
