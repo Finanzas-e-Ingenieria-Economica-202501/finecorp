@@ -44,10 +44,9 @@ export default function NewCashFlowPage() {
             nominalValue: 100000,
             comercialValue: 100000,
             paymentFrequency: PaymentFrequency.monthly,
-            numberOfPeriods: 12,
+            years: 1,
             amortizationMethod: AmortizationMethod.german,
             emissionDate: new Date(),
-            maturityDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
             prima: 0,
             structuration: 0,
             colocation: 0,
@@ -57,14 +56,12 @@ export default function NewCashFlowPage() {
             colocationApplyTo: Actor.emitter,
             flotationApplyTo: Actor.both,
             cavaliApplyTo: Actor.both,
+            cok: 0,
+            income_tax: 0,
             gracePeriod: [],
         },
     });
 
-    const numberOfPeriods = useWatch({
-        control: formState.control,
-        name: "numberOfPeriods",
-    });
     const interestRateType = useWatch({
         control: formState.control,
         name: "interestRateType",
@@ -84,7 +81,7 @@ export default function NewCashFlowPage() {
     // Helper: get available periods (not already in gracePeriod)
     const usedPeriods = fields.map((f) => f.period);
     const availablePeriods = Array.from(
-        { length: numberOfPeriods || 0 },
+        { length: formState.getValues("years") || 0 },
         (_, i) => i + 1
     ).filter((p) => !usedPeriods.includes(p));
 
@@ -104,7 +101,27 @@ export default function NewCashFlowPage() {
     const onSubmit = formState.handleSubmit(async (data) => {
         setLoading(true);
         try {
-            const result = await createCashFlowAction(data);
+            // Convert string values to numbers before submitting
+            const processedData = {
+                ...data,
+                interestRate: typeof data.interestRate === 'string' ? parseFloat(data.interestRate) || 0 : data.interestRate,
+                nominalValue: typeof data.nominalValue === 'string' ? parseFloat(data.nominalValue) || 0 : data.nominalValue,
+                comercialValue: typeof data.comercialValue === 'string' ? parseFloat(data.comercialValue) || 0 : data.comercialValue,
+                years: typeof data.years === 'string' ? parseInt(data.years) || 1 : data.years,
+                prima: typeof data.prima === 'string' ? parseFloat(data.prima) || 0 : data.prima,
+                structuration: typeof data.structuration === 'string' ? parseFloat(data.structuration) || 0 : data.structuration,
+                colocation: typeof data.colocation === 'string' ? parseFloat(data.colocation) || 0 : data.colocation,
+                flotation: typeof data.flotation === 'string' ? parseFloat(data.flotation) || 0 : data.flotation,
+                cavali: typeof data.cavali === 'string' ? parseFloat(data.cavali) || 0 : data.cavali,
+                cok: typeof data.cok === 'string' ? parseFloat(data.cok) || 0 : data.cok,
+                income_tax: typeof data.income_tax === 'string' ? parseFloat(data.income_tax) || 0 : data.income_tax,
+                gracePeriod: data.gracePeriod.map(gp => ({
+                    ...gp,
+                    duration: typeof gp.duration === 'string' ? parseInt(gp.duration) || 0 : gp.duration,
+                })),
+            };
+
+            const result = await createCashFlowAction(processedData);
             if (result && result.errors) {
                 toast.error("Validation error. Please check your input.");
                 // Optionally show field errors with toast or setError
@@ -154,6 +171,7 @@ export default function NewCashFlowPage() {
             <Form {...formState}>
                 <form onSubmit={onSubmit} className="w-full max-w-[600px]">
                     <div className="space-y-4">
+                        {/* --- Sección de datos del bono --- */}
                         <FormField
                             control={formState.control}
                             name="bondName"
@@ -171,7 +189,6 @@ export default function NewCashFlowPage() {
                             )}
                         />
 
-                        {/* Selector de moneda */}
                         <FormField
                             control={formState.control}
                             name="currency"
@@ -217,17 +234,17 @@ export default function NewCashFlowPage() {
                             control={formState.control}
                             name="interestRateType"
                             render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Interest Rate Type
-                                    </label>
+                                <FormItem>
+                                    <FormLabel>Interest Rate Type</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
-                                        <SelectTrigger className="flex-1">
-                                            <SelectValue placeholder="Select interest rate type" />
-                                        </SelectTrigger>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select interest rate type" />
+                                            </SelectTrigger>
+                                        </FormControl>
                                         <SelectContent>
                                             <SelectItem value={InterestRateType.nominal}>
                                                 Nominal
@@ -237,7 +254,8 @@ export default function NewCashFlowPage() {
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                         {/* Compounding Frequency: only show if Nominal */}
@@ -246,17 +264,17 @@ export default function NewCashFlowPage() {
                                 control={formState.control}
                                 name="compoundingFrequency"
                                 render={({ field }) => (
-                                    <div className="flex items-center gap-4 w-full">
-                                        <label className="w-40 shrink-0 text-sm font-medium">
-                                            Compounding Frequency
-                                        </label>
+                                    <FormItem>
+                                        <FormLabel>Compounding Frequency</FormLabel>
                                         <Select
                                             onValueChange={field.onChange}
                                             defaultValue={field.value}
                                         >
-                                            <SelectTrigger className="flex-1">
-                                                <SelectValue placeholder="Select compounding frequency" />
-                                            </SelectTrigger>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select compounding frequency" />
+                                                </SelectTrigger>
+                                            </FormControl>
                                             <SelectContent>
                                                 <SelectItem value={CompoundingFrequency.annual}>
                                                     Annual
@@ -278,7 +296,8 @@ export default function NewCashFlowPage() {
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
-                                    </div>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
                             />
                         )}
@@ -287,24 +306,17 @@ export default function NewCashFlowPage() {
                             control={formState.control}
                             name="interestRate"
                             render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Interest Rate (%)
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        placeholder="5.0"
-                                        className="flex-1"
-                                        {...field}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                parseFloat(e.target.value) || 0
-                                            )
-                                        }
-                                    />
-                                </div>
+                                <FormItem>
+                                    <FormLabel>Interest Rate (%)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="text"
+                                            placeholder="5.0"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                         {/* Nominal Value */}
@@ -312,23 +324,17 @@ export default function NewCashFlowPage() {
                             control={formState.control}
                             name="nominalValue"
                             render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Nominal Value
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        placeholder="100000"
-                                        className="flex-1"
-                                        {...field}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                parseFloat(e.target.value) || 0
-                                            )
-                                        }
-                                    />
-                                </div>
+                                <FormItem>
+                                    <FormLabel>Nominal Value</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="text"
+                                            placeholder="100000"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                         {/* Comercial Value */}
@@ -336,23 +342,17 @@ export default function NewCashFlowPage() {
                             control={formState.control}
                             name="comercialValue"
                             render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Comercial Value
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        min="0"
-                                        placeholder="100000"
-                                        className="flex-1"
-                                        {...field}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                parseFloat(e.target.value) || 0
-                                            )
-                                        }
-                                    />
-                                </div>
+                                <FormItem>
+                                    <FormLabel>Commercial Value</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="text"
+                                            placeholder="100000"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                         {/* Payment Frequency */}
@@ -360,17 +360,17 @@ export default function NewCashFlowPage() {
                             control={formState.control}
                             name="paymentFrequency"
                             render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Payment Frequency
-                                    </label>
+                                <FormItem>
+                                    <FormLabel>Payment Frequency</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
-                                        <SelectTrigger className="flex-1">
-                                            <SelectValue placeholder="Select payment frequency" />
-                                        </SelectTrigger>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select payment frequency" />
+                                            </SelectTrigger>
+                                        </FormControl>
                                         <SelectContent>
                                             <SelectItem value={PaymentFrequency.annual}>
                                                 Annual
@@ -392,31 +392,26 @@ export default function NewCashFlowPage() {
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
-                        {/* Number of Periods */}
+                        {/* Years */}
                         <FormField
                             control={formState.control}
-                            name="numberOfPeriods"
+                            name="years"
                             render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Number of Periods
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        min="1"
-                                        placeholder="12"
-                                        className="flex-1"
-                                        {...field}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                parseInt(e.target.value) || 1
-                                            )
-                                        }
-                                    />
-                                </div>
+                                <FormItem>
+                                    <FormLabel>Years</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="text"
+                                            placeholder="1"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                         {/* Amortization Method */}
@@ -424,17 +419,17 @@ export default function NewCashFlowPage() {
                             control={formState.control}
                             name="amortizationMethod"
                             render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Amortization Method
-                                    </label>
+                                <FormItem>
+                                    <FormLabel>Amortization Method</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
-                                        <SelectTrigger className="flex-1">
-                                            <SelectValue placeholder="Select amortization method" />
-                                        </SelectTrigger>
+                                        <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select amortization method" />
+                                            </SelectTrigger>
+                                        </FormControl>
                                         <SelectContent>
                                             <SelectItem value={AmortizationMethod.german}>
                                                 German
@@ -447,7 +442,8 @@ export default function NewCashFlowPage() {
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                </div>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                         {/* Emission Date */}
@@ -455,55 +451,27 @@ export default function NewCashFlowPage() {
                             control={formState.control}
                             name="emissionDate"
                             render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Emission Date
-                                    </label>
-                                    <Input
-                                        type="date"
-                                        value={
-                                            field.value
-                                                ? new Date(field.value)
-                                                      .toISOString()
-                                                      .split("T")[0]
-                                                : ""
-                                        }
-                                        className="flex-1"
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                new Date(e.target.value)
-                                            )
-                                        }
-                                    />
-                                </div>
-                            )}
-                        />
-                        {/* Maturity Date */}
-                        <FormField
-                            control={formState.control}
-                            name="maturityDate"
-                            render={({ field }) => (
-                                <div className="flex items-center gap-4 w-full">
-                                    <label className="w-40 shrink-0 text-sm font-medium">
-                                        Maturity Date
-                                    </label>
-                                    <Input
-                                        type="date"
-                                        value={
-                                            field.value
-                                                ? new Date(field.value)
-                                                      .toISOString()
-                                                      .split("T")[0]
-                                                : ""
-                                        }
-                                        className="flex-1"
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                new Date(e.target.value)
-                                            )
-                                        }
-                                    />
-                                </div>
+                                <FormItem>
+                                    <FormLabel>Emission Date</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="date"
+                                            value={
+                                                field.value
+                                                    ? new Date(field.value)
+                                                          .toISOString()
+                                                          .split("T")[0]
+                                                    : ""
+                                            }
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    new Date(e.target.value)
+                                                )
+                                            }
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
                             )}
                         />
                     </div>
@@ -648,7 +616,7 @@ export default function NewCashFlowPage() {
                                                         </SelectItem>
                                                     </SelectContent>
                                                 </Select>
-                                                {/* <FormMessage /> */}
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -661,29 +629,17 @@ export default function NewCashFlowPage() {
                                                 <FormLabel>Duration</FormLabel>
                                                 <FormControl>
                                                     <Input
-                                                        type="number"
-                                                        min="0"
+                                                        type="text"
                                                         disabled={
                                                             formState.getValues(
                                                                 `gracePeriod.${idx}.type`
                                                             ) ===
                                                             GracePeriodType.none
                                                         }
-                                                        value={
-                                                            durationField.value ??
-                                                            0
-                                                        }
-                                                        onChange={(e) =>
-                                                            durationField.onChange(
-                                                                Number(
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            )
-                                                        }
+                                                        {...durationField}
                                                     />
                                                 </FormControl>
-                                                {/* <FormMessage /> */}
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
@@ -695,252 +651,280 @@ export default function NewCashFlowPage() {
                     <Separator className="my-4" />
 
                     {/* Bond Costs Section */}
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                         <h3 className="font-semibold text-lg">Bond Costs</h3>
-                        <div className="flex flex-col gap-4">
-                            {/* Premium */}
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    Premium (%)
-                                </label>
-                                <FormField
-                                    control={formState.control}
-                                    name="prima"
-                                    render={({ field }) => (
+                        
+                        {/* Premium */}
+                        <FormField
+                            control={formState.control}
+                            name="prima"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Premium (%)</FormLabel>
+                                    <FormControl>
                                         <Input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            className="flex-1"
+                                            type="text"
+                                            placeholder="0"
                                             {...field}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    parseFloat(e.target.value) || 0
-                                                )
-                                            }
                                         />
-                                    )}
-                                />
-                            </div>
-                            {/* Structuring */}
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    Structuring (%)
-                                </label>
-                                <FormField
-                                    control={formState.control}
-                                    name="structuration"
-                                    render={({ field }) => (
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Structuring */}
+                        <FormField
+                            control={formState.control}
+                            name="structuration"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Structuring (%)</FormLabel>
+                                    <FormControl>
                                         <Input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            className="flex-1"
+                                            type="text"
+                                            placeholder="0"
                                             {...field}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    parseFloat(e.target.value) || 0
-                                                )
-                                            }
                                         />
-                                    )}
-                                />
-                            </div>
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    Apply Structuring to
-                                </label>
-                                <FormField
-                                    control={formState.control}
-                                    name="structurationApplyTo"
-                                    render={({ field }) => (
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            value={field.value}
-                                            defaultValue={field.value}
-                                        >
-                                            <SelectTrigger className="flex-1">
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="structurationApplyTo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Apply Structuring to</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Select actor" />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value={Actor.emitter}>
-                                                    Emitter
-                                                </SelectItem>
-                                                <SelectItem value={Actor.bondholder}>
-                                                    Bondholder
-                                                </SelectItem>
-                                                <SelectItem value={Actor.both}>
-                                                    Both
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                            </div>
-                            {/* Placement */}
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    Placement (%)
-                                </label>
-                                <FormField
-                                    control={formState.control}
-                                    name="colocation"
-                                    render={({ field }) => (
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value={Actor.emitter}>
+                                                Emitter
+                                            </SelectItem>
+                                            <SelectItem value={Actor.bondholder}>
+                                                Bondholder
+                                            </SelectItem>
+                                            <SelectItem value={Actor.both}>
+                                                Both
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Placement */}
+                        <FormField
+                            control={formState.control}
+                            name="colocation"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Placement (%)</FormLabel>
+                                    <FormControl>
                                         <Input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            className="flex-1"
+                                            type="text"
+                                            placeholder="0"
                                             {...field}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    parseFloat(e.target.value) || 0
-                                                )
-                                            }
                                         />
-                                    )}
-                                />
-                            </div>
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    Apply Placement to
-                                </label>
-                                <FormField
-                                    control={formState.control}
-                                    name="colocationApplyTo"
-                                    render={({ field }) => (
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            value={field.value}
-                                            defaultValue={field.value}
-                                        >
-                                            <SelectTrigger className="flex-1">
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="colocationApplyTo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Apply Placement to</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Select actor" />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value={Actor.emitter}>
-                                                    Emitter
-                                                </SelectItem>
-                                                <SelectItem value={Actor.bondholder}>
-                                                    Bondholder
-                                                </SelectItem>
-                                                <SelectItem value={Actor.both}>
-                                                    Both
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                            </div>
-                            {/* Flotation */}
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    Flotation (%)</label>
-                                <FormField
-                                    control={formState.control}
-                                    name="flotation"
-                                    render={({ field }) => (
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value={Actor.emitter}>
+                                                Emitter
+                                            </SelectItem>
+                                            <SelectItem value={Actor.bondholder}>
+                                                Bondholder
+                                            </SelectItem>
+                                            <SelectItem value={Actor.both}>
+                                                Both
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Flotation */}
+                        <FormField
+                            control={formState.control}
+                            name="flotation"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Flotation (%)</FormLabel>
+                                    <FormControl>
                                         <Input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            className="flex-1"
+                                            type="text"
+                                            placeholder="0"
                                             {...field}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    parseFloat(e.target.value) || 0
-                                                )
-                                            }
                                         />
-                                    )}
-                                />
-                            </div>
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    Apply Flotation to
-                                </label>
-                                <FormField
-                                    control={formState.control}
-                                    name="flotationApplyTo"
-                                    render={({ field }) => (
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            value={field.value}
-                                            defaultValue={field.value}
-                                        >
-                                            <SelectTrigger className="flex-1">
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="flotationApplyTo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Apply Flotation to</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Select actor" />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value={Actor.emitter}>
-                                                    Emitter
-                                                </SelectItem>
-                                                <SelectItem value={Actor.bondholder}>
-                                                    Bondholder
-                                                </SelectItem>
-                                                <SelectItem value={Actor.both}>
-                                                    Both
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                            </div>
-                            {/* CAVALI */}
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    CAVALI (%)</label>
-                                <FormField
-                                    control={formState.control}
-                                    name="cavali"
-                                    render={({ field }) => (
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value={Actor.emitter}>
+                                                Emitter
+                                            </SelectItem>
+                                            <SelectItem value={Actor.bondholder}>
+                                                Bondholder
+                                            </SelectItem>
+                                            <SelectItem value={Actor.both}>
+                                                Both
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* CAVALI */}
+                        <FormField
+                            control={formState.control}
+                            name="cavali"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>CAVALI (%)</FormLabel>
+                                    <FormControl>
                                         <Input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
-                                            className="flex-1"
+                                            type="text"
+                                            placeholder="0"
                                             {...field}
-                                            onChange={(e) =>
-                                                field.onChange(
-                                                    parseFloat(e.target.value) || 0
-                                                )
-                                            }
                                         />
-                                    )}
-                                />
-                            </div>
-                            <div className="flex items-center gap-4 w-full">
-                                <label className="w-40 shrink-0 text-sm font-medium">
-                                    Apply CAVALI to
-                                </label>
-                                <FormField
-                                    control={formState.control}
-                                    name="cavaliApplyTo"
-                                    render={({ field }) => (
-                                        <Select
-                                            onValueChange={field.onChange}
-                                            value={field.value}
-                                            defaultValue={field.value}
-                                        >
-                                            <SelectTrigger className="flex-1">
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={formState.control}
+                            name="cavaliApplyTo"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Apply CAVALI to</FormLabel>
+                                    <Select
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        defaultValue={field.value}
+                                    >
+                                        <FormControl>
+                                            <SelectTrigger>
                                                 <SelectValue placeholder="Select actor" />
                                             </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value={Actor.emitter}>
-                                                    Emitter
-                                                </SelectItem>
-                                                <SelectItem value={Actor.bondholder}>
-                                                    Bondholder
-                                                </SelectItem>
-                                                <SelectItem value={Actor.both}>
-                                                    Both
-                                                </SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    )}
-                                />
-                            </div>
-                        </div>
+                                        </FormControl>
+                                        <SelectContent>
+                                            <SelectItem value={Actor.emitter}>
+                                                Emitter
+                                            </SelectItem>
+                                            <SelectItem value={Actor.bondholder}>
+                                                Bondholder
+                                            </SelectItem>
+                                            <SelectItem value={Actor.both}>
+                                                Both
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    {/* Financial Rates Section */}
+                    <div className="space-y-4">
+                        <h3 className="font-semibold text-lg">Financial Rates</h3>
+                        
+                        {/* COK */}
+                        <FormField
+                            control={formState.control}
+                            name="cok"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>COK (%)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="text"
+                                            placeholder="0"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        {/* Income Tax */}
+                        <FormField
+                            control={formState.control}
+                            name="income_tax"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Income Tax (%)</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            type="text"
+                                            placeholder="0"
+                                            {...field}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </div>
 
                     {/* Botón de Create en la parte inferior derecha */}

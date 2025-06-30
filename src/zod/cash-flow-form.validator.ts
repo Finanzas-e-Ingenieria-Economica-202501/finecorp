@@ -21,23 +21,24 @@ export const CashFlowFormValidator = z.object({
   comercialValue: z.coerce.number().min(0, "Commercial value must be a positive number"),
 
   paymentFrequency: z.nativeEnum(PaymentFrequency),
-  numberOfPeriods: z.coerce.number().min(1, "Number of periods must be a positive number"),
-
+  years: z.coerce.number().min(1, "Years must be a positive number"),
   amortizationMethod: z.nativeEnum(AmortizationMethod),
 
   emissionDate: z.coerce.date(),
-  maturityDate: z.coerce.date(),
 
-  prima: z.coerce.number().min(0, "Premium must be positive").optional(), // % Prima
-  structuration: z.coerce.number().min(0, "Structuring must be positive").optional(), // % Estructuración
-  colocation: z.coerce.number().min(0, "Placement must be positive").optional(), // % Colocación
-  flotation: z.coerce.number().min(0, "Flotation must be positive").optional(), // % Flotación
-  cavali: z.coerce.number().min(0, "CAVALI must be positive").optional(), // % CAVALI
+  prima: z.coerce.number().min(0, "Premium must be positive").optional(),
+  structuration: z.coerce.number().min(0, "Structuring must be positive").optional(),
+  colocation: z.coerce.number().min(0, "Placement must be positive").optional(),
+  flotation: z.coerce.number().min(0, "Flotation must be positive").optional(),
+  cavali: z.coerce.number().min(0, "CAVALI must be positive").optional(),
 
   structurationApplyTo: z.nativeEnum(Actor),
   colocationApplyTo: z.nativeEnum(Actor),
   flotationApplyTo: z.nativeEnum(Actor),
   cavaliApplyTo: z.nativeEnum(Actor),
+
+  cok: z.coerce.number().min(0, "COK must be positive"),
+  income_tax: z.coerce.number().min(0, "Income tax must be positive").default(0),
 
   // --- Plazo de gracia ---
   gracePeriod: z.array(z.object({
@@ -46,12 +47,7 @@ export const CashFlowFormValidator = z.object({
     duration: z.number().min(0, "Grace period duration must be 0 or more").optional(),
   })),
 })
-
 // --- Validaciones cruzadas ---
-.refine(data => data.maturityDate > data.emissionDate, {
-  message: "Maturity date must be after emission date",
-  path: ["maturityDate"]
-})
 .refine(data => {
   if (data.interestRateType === InterestRateType.nominal) {
     return !!data.compoundingFrequency;

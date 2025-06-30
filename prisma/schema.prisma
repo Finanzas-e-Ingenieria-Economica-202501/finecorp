@@ -42,10 +42,9 @@ model bond_valuation {
   nominal_value          Decimal                @db.Decimal(20, 2)
   comercial_value        Decimal                @db.Decimal(20, 2)
   payment_frequency      payment_frequency
-  number_of_periods      Int
+  years                  Int
   amortization_method    amortization_method
   emission_date          DateTime               @db.Date
-  maturity_date          DateTime               @db.Date
   created_at             DateTime?              @default(now()) @db.Timestamptz(6)
   updated_at             DateTime?              @default(now()) @db.Timestamptz(6)
   prima                  Decimal                @db.Decimal
@@ -57,6 +56,8 @@ model bond_valuation {
   colocation_apply_to    actor                  @default(emitter)
   flotation_apply_to     actor                  @default(both)
   cavali_apply_to        actor                  @default(both)
+  cok                    Decimal?               @db.Decimal(10, 6)
+  income_tax             Decimal?               @db.Decimal(10, 6)
   bond_grace_period      bond_grace_period[]
   users                  users                  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -73,6 +74,7 @@ enum compounding_frequency {
   quarterly
   bimonthly
   monthly
+  biweekly
   daily
 }
 
@@ -93,6 +95,7 @@ enum payment_frequency {
   quarterly
   bimonthly
   monthly
+  biweekly
   daily
 }
 

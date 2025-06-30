@@ -43,10 +43,9 @@ export async function createCashFlowAction(formData: unknown) {
       nominal_value: data.nominalValue,
       comercial_value: data.comercialValue,
       payment_frequency: data.paymentFrequency,
-      number_of_periods: data.numberOfPeriods,
+      years: data.years, // years es requerido, no puede ser undefined
       amortization_method: data.amortizationMethod,
       emission_date: data.emissionDate,
-      maturity_date: data.maturityDate,
       prima: data.prima ?? 0,
       structuration: data.structuration ?? 0,
       colocation: data.colocation ?? 0,
@@ -56,6 +55,8 @@ export async function createCashFlowAction(formData: unknown) {
       colocation_apply_to: data.colocationApplyTo,
       flotation_apply_to: data.flotationApplyTo,
       cavali_apply_to: data.cavaliApplyTo,
+      cok: typeof data.cok === "number" ? data.cok : undefined,
+      income_tax: typeof data.income_tax === "number" ? data.income_tax : undefined,
       bond_grace_period: data.gracePeriod.length > 0 ? {
         create: data.gracePeriod.map((gp) => ({
           period: gp.period,
