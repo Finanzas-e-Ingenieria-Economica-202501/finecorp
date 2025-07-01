@@ -3,7 +3,7 @@ import { addDays, addMonths } from 'date-fns';
 import { z } from 'zod';
 import { CashFlowFormValidator } from '../zod/cash-flow-form.validator';
 import { PaymentFrequency, InterestRateType, GracePeriodType, Actor, CompoundingFrequency, AmortizationMethod } from '../zod/cash-flow.enums';
-
+import {npv, irr} from "financial"
 // Configure Decimal.js for high precision financial calculations (up to 9 decimal places)
 Decimal.set({ 
   precision: 12, // High internal precision for calculations
@@ -397,10 +397,9 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   const totalConvexityFactor = periods.slice(1).reduce((sum, p) => sum.plus(p.convexityFactor), new Decimal(0));
   
   // Precio Actual = NPV(COK, flujos bonista períodos 1+ sin incluir período 0)
-  const actualPrice = periods.slice(1).reduce((sum, p) => {
-    const discountFactor = new Decimal(1).plus(periodCOK).pow(p.period);
-    return sum.plus(p.bondholderFlow.div(discountFactor));
-  }, new Decimal(0));
+  // Using financial library NPV function
+  const bondholderFlowsForNPV = periods.slice(1).map(p => p.bondholderFlow.toNumber());
+  const actualPrice = new Decimal(npv(periodCOK.toNumber(), bondholderFlowsForNPV));
   
   // VAN (Utilidad/Pérdida) = Flujo del bonista período 0 + Precio Actual
   const bondholderFlowPeriod0 = periods[0].bondholderFlow;
@@ -417,10 +416,33 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   
   const modifiedDuration = duration.div(new Decimal(1).plus(periodCOK));
   
-  // Calculate TCEA and TREA (these would require solving for IRR - simplified here)
-  const emitterTCEA = effectiveAnnualRate.mul(100); // Simplified
-  const emitterTCEAWithShield = effectiveAnnualRate.mul(100).mul(new Decimal(1).minus(incomeTax.div(100))); // Simplified
-  const bondholderTREA = effectiveAnnualRate.mul(100); // Simplified
+  // Calculate TCEA and TREA using IRR from financial library
+  const emitterFlows = periods.map(p => p.emitterFlow.toNumber());
+  const emitterFlowsWithShield = periods.map(p => p.emitterFlowWithShield.toNumber());
+  const bondholderFlows = periods.map(p => p.bondholderFlow.toNumber());
+  
+  let emitterTCEA: Decimal;
+  let emitterTCEAWithShield: Decimal;
+  let bondholderTREA: Decimal;
+  
+  try {
+    // Calculate IRR for emitter (period rate)
+    const emitterIRRPeriod = irr(emitterFlows);
+    emitterTCEA = new Decimal(1).plus(emitterIRRPeriod).pow(periodsPerYear).minus(1).mul(100);
+    
+    // Calculate IRR for emitter with shield (period rate)
+    const emitterIRRWithShieldPeriod = irr(emitterFlowsWithShield);
+    emitterTCEAWithShield = new Decimal(1).plus(emitterIRRWithShieldPeriod).pow(periodsPerYear).minus(1).mul(100);
+    
+    // Calculate IRR for bondholder (period rate)
+    const bondholderIRRPeriod = irr(bondholderFlows);
+    bondholderTREA = new Decimal(1).plus(bondholderIRRPeriod).pow(periodsPerYear).minus(1).mul(100);
+  } catch {
+    // Fallback to simplified calculation if IRR fails
+    emitterTCEA = effectiveAnnualRate.mul(100);
+    emitterTCEAWithShield = effectiveAnnualRate.mul(100).mul(new Decimal(1).minus(incomeTax.div(100)));
+    bondholderTREA = effectiveAnnualRate.mul(100);
+  }
   
   const summary: CalculationSummary = {
     couponFrequency: frequencyDays,
