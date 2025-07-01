@@ -344,7 +344,7 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     // Calculate flows
     const emitterFlow = quota.plus(premiumAmount);
     const emitterFlowWithShield = emitterFlow.minus(shield);
-    const bondholderFlow = quota;
+    const bondholderFlow = quota.plus(premiumAmount); // Bondholder receives quota + premium (positive version of emitter flow)
     
     // Discount factor for present value calculations
     const discountFactor = new Decimal(1).plus(periodCOK).pow(i);
