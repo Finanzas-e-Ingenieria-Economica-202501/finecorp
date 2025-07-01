@@ -31,14 +31,31 @@ export default function HeaderSidebarContent() {
             return [];
         }
         
+        // Mapeo de traducciones para términos específicos
+        const translations: Record<string, string> = {
+            'cash flows': 'Flujos de Caja',
+            'cash-flows': 'Flujos de Caja',
+            'new': 'Nuevo',
+            'edit': 'Editar',
+            'home': 'Inicio'
+        };
+        
         // Build breadcrumb items without dashboard
         const items: { name: string; path: string; isLast: boolean }[] = [];
         
         filteredSegments.forEach((segment, index) => {
             const segmentPath = '/dashboard/' + filteredSegments.slice(0, index + 1).join('/');
-            const segmentName = segment
+            let segmentName = segment
                 .replace(/[-_]/g, ' ')
                 .replace(/\b\w/g, char => char.toUpperCase());
+            
+            // Aplicar traducción si existe
+            const lowerSegment = segment.toLowerCase().replace(/[-_]/g, ' ');
+            if (translations[lowerSegment]) {
+                segmentName = translations[lowerSegment];
+            } else if (translations[segment.toLowerCase()]) {
+                segmentName = translations[segment.toLowerCase()];
+            }
             
             items.push({
                 name: segmentName,

@@ -54,7 +54,7 @@ export default function Home() {
                 <form onSubmit={onSubmit} className="w-full max-w-md">
                     <Card>
                         <CardHeader className="text-center">
-                            <CardTitle className="text-2xl">Welcome to Finecorp</CardTitle>
+                            <CardTitle className="text-2xl">Bienvenido a Finecorp</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <FormField
@@ -62,15 +62,15 @@ export default function Home() {
                                 name="username"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Username</FormLabel>
+                                        <FormLabel>Usuario</FormLabel>
                                         <FormControl>
                                             <Input
-                                                placeholder="Username"
+                                                placeholder="Usuario"
                                                 {...field}
                                             />
                                         </FormControl>
                                         <FormDescription>
-                                            This is your public display name.
+                                            Este es tu nombre de usuario público.
                                         </FormDescription>
                                         <FormMessage />
                                     </FormItem>
@@ -81,17 +81,16 @@ export default function Home() {
                                 name="password"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Password</FormLabel>
+                                        <FormLabel>Contraseña</FormLabel>
                                         <FormControl>
                                             <Input
                                                 type="password"
-                                                placeholder="Password"
+                                                placeholder="Contraseña"
                                                 {...field}
                                             />
                                         </FormControl>
                                         <FormDescription>
-                                            This is your password for logging
-                                            in.
+                                            Esta es tu contraseña para iniciar sesión.
                                         </FormDescription>
                                         <FormMessage />
                                     </FormItem>
@@ -100,7 +99,7 @@ export default function Home() {
                         </CardContent>
                         <CardFooter>
                             <Button type="submit" className="w-full">
-                                <span>Login</span>
+                                <span>Iniciar Sesión</span>
                             </Button>
                         </CardFooter>
                     </Card>

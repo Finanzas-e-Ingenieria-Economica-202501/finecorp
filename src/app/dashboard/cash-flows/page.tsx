@@ -30,7 +30,7 @@ export default async function CashFlowsPage() {
           <span className="text-lg font-semibold mb-2">No tienes cash flows registrados</span>
           <span className="text-muted-foreground mb-6">Crea tu primer flujo de caja para comenzar.</span>
           <Link href={PATHS.DASHBOARD.CASH_FLOWS.NEW}>
-            <Button className="mt-2">Create</Button>
+            <Button className="mt-2">Crear</Button>
           </Link>
         </div>
       ) : (

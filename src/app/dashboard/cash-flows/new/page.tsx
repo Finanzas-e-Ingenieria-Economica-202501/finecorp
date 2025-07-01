@@ -166,16 +166,16 @@ export default function NewCashFlowPage() {
 
             const result = await createCashFlowAction(processedData);
             if (result && result.errors) {
-                toast.error("Validation error. Please check your input.");
+                toast.error("Error de validación. Por favor verifica tus datos.");
                 // Optionally show field errors with toast or setError
                 setLoading(false);
                 return;
             }
-            toast.success("Bond created successfully!");
+            toast.success("¡Bono creado exitosamente!");
             // Redirect is handled by server action
         } catch (err) {
             console.error("Error creating bond:", err);
-            toast.error("An unexpected error occurred. Please try again.");
+            toast.error("Ocurrió un error inesperado. Por favor intenta de nuevo.");
             setLoading(false);
         }
     });
@@ -206,7 +206,7 @@ export default function NewCashFlowPage() {
                             ></path>
                         </svg>
                         <span className="text-lg font-medium">
-                            Creating bond...
+                            Creando bono...
                         </span>
                     </div>
                 </div>
@@ -220,10 +220,10 @@ export default function NewCashFlowPage() {
                             name="bondName"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Bond Name</FormLabel>
+                                    <FormLabel>Nombre del Bono</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder="Bond Name"
+                                            placeholder="Nombre del Bono"
                                             {...field}
                                         />
                                     </FormControl>
@@ -237,19 +237,19 @@ export default function NewCashFlowPage() {
                             name="currency"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Currency</FormLabel>
+                                    <FormLabel>Moneda</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select currency" />
+                                                <SelectValue placeholder="Seleccionar moneda" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value="USD">
-                                                USD - US Dollar
+                                                USD - Dólar Estadounidense
                                             </SelectItem>
                                             <SelectItem value="PEN">
                                                 PEN - Sol Peruano
@@ -278,14 +278,14 @@ export default function NewCashFlowPage() {
                             name="interestRateType"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Interest Rate Type</FormLabel>
+                                    <FormLabel>Tipo de Tasa de Interés</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select interest rate type" />
+                                                <SelectValue placeholder="Seleccionar tipo de tasa" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
@@ -293,7 +293,7 @@ export default function NewCashFlowPage() {
                                                 Nominal
                                             </SelectItem>
                                             <SelectItem value={InterestRateType.effective}>
-                                                Effective
+                                                Efectiva
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -308,34 +308,34 @@ export default function NewCashFlowPage() {
                                 name="compoundingFrequency"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Compounding Frequency</FormLabel>
+                                        <FormLabel>Frecuencia de Capitalización</FormLabel>
                                         <Select
                                             onValueChange={field.onChange}
                                             defaultValue={field.value}
                                         >
                                             <FormControl>
                                                 <SelectTrigger>
-                                                    <SelectValue placeholder="Select compounding frequency" />
+                                                    <SelectValue placeholder="Seleccionar frecuencia de capitalización" />
                                                 </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                 <SelectItem value={CompoundingFrequency.annual}>
-                                                    Annual
+                                                    Anual
                                                 </SelectItem>
                                                 <SelectItem value={CompoundingFrequency.semi_annual}>
-                                                    Semi-Annual
+                                                    Semestral
                                                 </SelectItem>
                                                 <SelectItem value={CompoundingFrequency.quarterly}>
-                                                    Quarterly
+                                                    Trimestral
                                                 </SelectItem>
                                                 <SelectItem value={CompoundingFrequency.bimonthly}>
-                                                    Bimonthly
+                                                    Bimestral
                                                 </SelectItem>
                                                 <SelectItem value={CompoundingFrequency.monthly}>
-                                                    Monthly
+                                                    Mensual
                                                 </SelectItem>
                                                 <SelectItem value={CompoundingFrequency.daily}>
-                                                    Daily
+                                                    Diaria
                                                 </SelectItem>
                                             </SelectContent>
                                         </Select>
@@ -350,7 +350,7 @@ export default function NewCashFlowPage() {
                             name="interestRate"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Interest Rate (%)</FormLabel>
+                                    <FormLabel>Tasa de Interés (%)</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -368,7 +368,7 @@ export default function NewCashFlowPage() {
                             name="nominalValue"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Nominal Value</FormLabel>
+                                    <FormLabel>Valor Nominal</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -386,7 +386,7 @@ export default function NewCashFlowPage() {
                             name="comercialValue"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Commercial Value</FormLabel>
+                                    <FormLabel>Valor Comercial</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -404,34 +404,34 @@ export default function NewCashFlowPage() {
                             name="paymentFrequency"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Payment Frequency</FormLabel>
+                                    <FormLabel>Frecuencia de Pago</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select payment frequency" />
+                                                <SelectValue placeholder="Seleccionar frecuencia de pago" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value={PaymentFrequency.annual}>
-                                                Annual
+                                                Anual
                                             </SelectItem>
                                             <SelectItem value={PaymentFrequency.semi_annual}>
-                                                Semi-Annual
+                                                Semestral
                                             </SelectItem>
                                             <SelectItem value={PaymentFrequency.quarterly}>
-                                                Quarterly
+                                                Trimestral
                                             </SelectItem>
                                             <SelectItem value={PaymentFrequency.bimonthly}>
-                                                Bimonthly
+                                                Bimestral
                                             </SelectItem>
                                             <SelectItem value={PaymentFrequency.monthly}>
-                                                Monthly
+                                                Mensual
                                             </SelectItem>
                                             <SelectItem value={PaymentFrequency.daily}>
-                                                Daily
+                                                Diaria
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -445,7 +445,7 @@ export default function NewCashFlowPage() {
                             name="years"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Years</FormLabel>
+                                    <FormLabel>Años</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -463,25 +463,25 @@ export default function NewCashFlowPage() {
                             name="amortizationMethod"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Amortization Method</FormLabel>
+                                    <FormLabel>Método de Amortización</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select amortization method" />
+                                                <SelectValue placeholder="Seleccionar método de amortización" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value={AmortizationMethod.german}>
-                                                German
+                                                Alemán
                                             </SelectItem>
                                             <SelectItem value={AmortizationMethod.french}>
-                                                French
+                                                Francés
                                             </SelectItem>
                                             <SelectItem value={AmortizationMethod.american}>
-                                                American
+                                                Americano
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -495,7 +495,7 @@ export default function NewCashFlowPage() {
                             name="emissionDate"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Emission Date</FormLabel>
+                                    <FormLabel>Fecha de Emisión</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="date"
@@ -523,15 +523,15 @@ export default function NewCashFlowPage() {
 
                     <div className="space-y-2">
                         <div className="flex flex-col gap-1">
-                            <h3 className="font-semibold text-lg">Grace Periods</h3>
+                            <h3 className="font-semibold text-lg">Períodos de Gracia</h3>
                             {totalPeriods > 0 && (
                                 <p className="text-sm text-muted-foreground">
-                                    Total payment periods: {totalPeriods} (based on {typeof years === 'string' ? years : years || 0} year{(typeof years === 'string' ? parseInt(years) : years || 0) !== 1 ? 's' : ''} with {paymentFrequency.replace('_', '-')} payments)
+                                    Total de períodos de pago: {totalPeriods} (basado en {typeof years === 'string' ? years : years || 0} año{(typeof years === 'string' ? parseInt(years) : years || 0) !== 1 ? 's' : ''} con pagos {paymentFrequency.replace('_', '-')})
                                 </p>
                             )}
                             {availablePeriods.length === 0 && totalPeriods > 0 && (
                                 <p className="text-sm text-amber-600">
-                                    All payment periods have grace periods assigned
+                                    Todos los períodos de pago tienen períodos de gracia asignados
                                 </p>
                             )}
                         </div>
@@ -539,7 +539,7 @@ export default function NewCashFlowPage() {
                             {/* Period selector */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">
-                                    Period
+                                    Período
                                 </label>
                                 <Select
                                     value={selectedPeriod.toString()}
@@ -550,7 +550,7 @@ export default function NewCashFlowPage() {
                                 >
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select period" />
+                                            <SelectValue placeholder="Seleccionar período" />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
@@ -568,7 +568,7 @@ export default function NewCashFlowPage() {
                             {/* Type selector */}
                             <div>
                                 <label className="block text-sm font-medium mb-1">
-                                    Type
+                                    Tipo
                                 </label>
                                 <Select
                                     value={selectedType}
@@ -580,19 +580,19 @@ export default function NewCashFlowPage() {
                                 >
                                     <FormControl>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select type" />
+                                            <SelectValue placeholder="Seleccionar tipo" />
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
                                         <SelectItem
                                             value={GracePeriodType.none}
                                         >
-                                            None
+                                            Ninguno
                                         </SelectItem>
                                         <SelectItem
                                             value={GracePeriodType.partial}
                                         >
-                                            Partial
+                                            Parcial
                                         </SelectItem>
                                         <SelectItem
                                             value={GracePeriodType.total}
@@ -607,7 +607,7 @@ export default function NewCashFlowPage() {
                                 onClick={handleAddGracePeriod}
                                 disabled={availablePeriods.length === 0}
                             >
-                                Add
+                                Agregar
                             </Button>
                         </div>
                         {/* List of added grace periods */}
@@ -619,14 +619,14 @@ export default function NewCashFlowPage() {
                                 >
                                     <div className="flex items-center gap-2">
                                         <span className="font-medium">
-                                            Period {field.period}
+                                            Período {field.period}
                                         </span>
                                         <button
                                             type="button"
                                             className="ml-auto text-red-500 hover:underline"
                                             onClick={() => remove(idx)}
                                         >
-                                            Remove
+                                            Eliminar
                                         </button>
                                     </div>
                                     <FormField
@@ -634,7 +634,7 @@ export default function NewCashFlowPage() {
                                         name={`gracePeriod.${idx}.type`}
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Type</FormLabel>
+                                                <FormLabel>Tipo</FormLabel>
                                                 <Select
                                                     onValueChange={
                                                         field.onChange
@@ -644,7 +644,7 @@ export default function NewCashFlowPage() {
                                                 >
                                                     <FormControl>
                                                         <SelectTrigger>
-                                                            <SelectValue placeholder="Select type" />
+                                                            <SelectValue placeholder="Seleccionar tipo" />
                                                         </SelectTrigger>
                                                     </FormControl>
                                                     <SelectContent>
@@ -653,14 +653,14 @@ export default function NewCashFlowPage() {
                                                                 GracePeriodType.none
                                                             }
                                                         >
-                                                            None
+                                                            Ninguno
                                                         </SelectItem>
                                                         <SelectItem
                                                             value={
                                                                 GracePeriodType.partial
                                                             }
                                                         >
-                                                            Partial
+                                                            Parcial
                                                         </SelectItem>
                                                         <SelectItem
                                                             value={
@@ -681,7 +681,7 @@ export default function NewCashFlowPage() {
                                         name={`gracePeriod.${idx}.duration`}
                                         render={({ field: durationField }) => (
                                             <FormItem>
-                                                <FormLabel>Duration</FormLabel>
+                                                <FormLabel>Duración</FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         type="text"
@@ -707,7 +707,7 @@ export default function NewCashFlowPage() {
 
                     {/* Bond Costs Section */}
                     <div className="space-y-4">
-                        <h3 className="font-semibold text-lg">Bond Costs</h3>
+                        <h3 className="font-semibold text-lg">Costos del Bono</h3>
                         
                         {/* Premium */}
                         <FormField
@@ -715,7 +715,7 @@ export default function NewCashFlowPage() {
                             name="prima"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Premium (%)</FormLabel>
+                                    <FormLabel>Prima (%)</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -734,7 +734,7 @@ export default function NewCashFlowPage() {
                             name="structuration"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Structuring (%)</FormLabel>
+                                    <FormLabel>Estructuración (%)</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -752,7 +752,7 @@ export default function NewCashFlowPage() {
                             name="structurationApplyTo"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Apply Structuring to</FormLabel>
+                                    <FormLabel>Aplicar Estructuración a</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         value={field.value}
@@ -760,18 +760,18 @@ export default function NewCashFlowPage() {
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select actor" />
+                                                <SelectValue placeholder="Seleccionar actor" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value={Actor.emitter}>
-                                                Emitter
+                                                Emisor
                                             </SelectItem>
                                             <SelectItem value={Actor.bondholder}>
-                                                Bondholder
+                                                Bonista
                                             </SelectItem>
                                             <SelectItem value={Actor.both}>
-                                                Both
+                                                Ambos
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -786,7 +786,7 @@ export default function NewCashFlowPage() {
                             name="colocation"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Placement (%)</FormLabel>
+                                    <FormLabel>Colocación (%)</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -804,7 +804,7 @@ export default function NewCashFlowPage() {
                             name="colocationApplyTo"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Apply Placement to</FormLabel>
+                                    <FormLabel>Aplicar Colocación a</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         value={field.value}
@@ -812,18 +812,18 @@ export default function NewCashFlowPage() {
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select actor" />
+                                                <SelectValue placeholder="Seleccionar actor" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value={Actor.emitter}>
-                                                Emitter
+                                                Emisor
                                             </SelectItem>
                                             <SelectItem value={Actor.bondholder}>
-                                                Bondholder
+                                                Bonista
                                             </SelectItem>
                                             <SelectItem value={Actor.both}>
-                                                Both
+                                                Ambos
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -838,7 +838,7 @@ export default function NewCashFlowPage() {
                             name="flotation"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Flotation (%)</FormLabel>
+                                    <FormLabel>Flotación (%)</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -856,7 +856,7 @@ export default function NewCashFlowPage() {
                             name="flotationApplyTo"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Apply Flotation to</FormLabel>
+                                    <FormLabel>Aplicar Flotación a</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         value={field.value}
@@ -864,18 +864,18 @@ export default function NewCashFlowPage() {
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select actor" />
+                                                <SelectValue placeholder="Seleccionar actor" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value={Actor.emitter}>
-                                                Emitter
+                                                Emisor
                                             </SelectItem>
                                             <SelectItem value={Actor.bondholder}>
-                                                Bondholder
+                                                Bonista
                                             </SelectItem>
                                             <SelectItem value={Actor.both}>
-                                                Both
+                                                Ambos
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -908,7 +908,7 @@ export default function NewCashFlowPage() {
                             name="cavaliApplyTo"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Apply CAVALI to</FormLabel>
+                                    <FormLabel>Aplicar CAVALI a</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         value={field.value}
@@ -916,18 +916,18 @@ export default function NewCashFlowPage() {
                                     >
                                         <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select actor" />
+                                                <SelectValue placeholder="Seleccionar actor" />
                                             </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value={Actor.emitter}>
-                                                Emitter
+                                                Emisor
                                             </SelectItem>
                                             <SelectItem value={Actor.bondholder}>
-                                                Bondholder
+                                                Bonista
                                             </SelectItem>
                                             <SelectItem value={Actor.both}>
-                                                Both
+                                                Ambos
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -941,7 +941,7 @@ export default function NewCashFlowPage() {
 
                     {/* Financial Rates Section */}
                     <div className="space-y-4">
-                        <h3 className="font-semibold text-lg">Financial Rates</h3>
+                        <h3 className="font-semibold text-lg">Tasas Financieras</h3>
                         
                         {/* COK */}
                         <FormField
@@ -968,7 +968,7 @@ export default function NewCashFlowPage() {
                             name="income_tax"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Income Tax (%)</FormLabel>
+                                    <FormLabel>Impuesto a la Renta (%)</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="text"
@@ -985,7 +985,7 @@ export default function NewCashFlowPage() {
                     {/* Botón de Create en la parte inferior derecha */}
                     <div className="flex justify-end mt-8 w-full">
                         <Button type="submit" className="min-w-[120px]">
-                            Create
+                            Crear
                         </Button>
                     </div>
                 </form>

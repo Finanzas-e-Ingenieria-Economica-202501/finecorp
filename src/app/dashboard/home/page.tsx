@@ -21,7 +21,7 @@ export default function Dashboard() {
         <main className="w-full max-w-2xl">
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-2xl text-center">Dashboard</CardTitle>
+                    <CardTitle className="text-2xl text-center">Panel de Control</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <p className="text-center text-muted-foreground">

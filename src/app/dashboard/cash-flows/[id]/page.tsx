@@ -134,7 +134,7 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
                 <span>{summary.effectiveAnnualCouponRate.toFixed(5)}%</span>
               </div>
               <div className="flex justify-between">
-                <span>Tasa efectiva período:</span>
+                <span>Tasa efectiva del período:</span>
                 <span>{summary.effectivePeriodCouponRate.toFixed(3)}%</span>
               </div>
               <div className="flex justify-between">
@@ -152,11 +152,11 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
           <CardContent>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span>Costos iniciales emisor:</span>
+                <span>Costos iniciales del emisor:</span>
                 <span>{Number(summary.initialEmitterCosts.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</span>
               </div>
               <div className="flex justify-between">
-                <span>Costos iniciales bonista:</span>
+                <span>Costos iniciales del bonista:</span>
                 <span>{Number(summary.initialBondholderCosts.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</span>
               </div>
               <div className="flex justify-between">
@@ -190,15 +190,15 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
                 <span>{summary.modifiedDuration.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>TCEA Emisor:</span>
+                <span>TCEA del Emisor:</span>
                 <span>{summary.emitterTCEA.toFixed(5)}%</span>
               </div>
               <div className="flex justify-between">
-                <span>TCEA Emisor c/Escudo:</span>
+                <span>TCEA del Emisor c/Escudo:</span>
                 <span>{summary.emitterTCEAWithShield.toFixed(5)}%</span>
               </div>
               <div className="flex justify-between">
-                <span>TREA Bonista:</span>
+                <span>TREA del Bonista:</span>
                 <span>{summary.bondholderTREA.toFixed(5)}%</span>
               </div>
             </div>
@@ -207,25 +207,25 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
       </div>
 
       {/* Cash Flow Table */}
-      <h2 className="text-xl font-semibold mb-4">Flujo de Caja Detallado</h2>
+      <h2 className="text-xl font-semibold mb-4">Cronograma de Flujos de Caja Detallado</h2>
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Nº</TableHead>
-            <TableHead>Fecha Programada</TableHead>
-            <TableHead>Plazo de Gracia</TableHead>
-            <TableHead>Bono</TableHead>
-            <TableHead>Cupón (Interés)</TableHead>
-            <TableHead>Cuota</TableHead>
-            <TableHead>Amort.</TableHead>
-            <TableHead>Prima</TableHead>
-            <TableHead>Escudo</TableHead>
-            <TableHead>Flujo Emisor</TableHead>
-            <TableHead>Flujo Emisor c/Escudo</TableHead>
-            <TableHead>Flujo Bonista</TableHead>
-            <TableHead>Flujo Act.</TableHead>
-            <TableHead>FA x Plazo</TableHead>
-            <TableHead>Factor p/Convexidad</TableHead>
+            <TableHead className="text-center">Nº</TableHead>
+            <TableHead className="text-center">Fecha Programada</TableHead>
+            <TableHead className="text-center">Período de Gracia</TableHead>
+            <TableHead className="text-center">Saldo del Bono</TableHead>
+            <TableHead className="text-center">Cupón (Interés)</TableHead>
+            <TableHead className="text-center">Cuota Total</TableHead>
+            <TableHead className="text-center">Amortización</TableHead>
+            <TableHead className="text-center">Prima</TableHead>
+            <TableHead className="text-center">Escudo Fiscal</TableHead>
+            <TableHead className="text-center">Flujo del Emisor</TableHead>
+            <TableHead className="text-center">Flujo del Emisor c/Escudo</TableHead>
+            <TableHead className="text-center">Flujo del Bonista</TableHead>
+            <TableHead className="text-center">Flujo Actualizado</TableHead>
+            <TableHead className="text-center">FA × Plazo</TableHead>
+            <TableHead className="text-center">Factor de Convexidad</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

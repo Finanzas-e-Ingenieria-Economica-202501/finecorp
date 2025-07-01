@@ -33,22 +33,22 @@ export function CashFlowListItem({ bond, onDeleted }: CashFlowListItemProps) {
       <div className="flex gap-2 mt-2">
         <Link href={PATHS.DASHBOARD.CASH_FLOWS.EDIT(bond.id)}>
           <Button type="button" variant="outline" size="sm">
-            Edit
+            Editar
           </Button>
         </Link>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button type="button" variant="destructive" size="sm">Delete</Button>
+            <Button type="button" variant="destructive" size="sm">Eliminar</Button>
           </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this cash flow?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar este flujo de caja?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. Are you sure you want to delete `{bond.bond_name}`?
+              Esta acción no se puede deshacer. ¿Estás seguro de que quieres eliminar `{bond.bond_name}`?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel type="button">Cancel</AlertDialogCancel>
+            <AlertDialogCancel type="button">Cancelar</AlertDialogCancel>
             <AlertDialogAction asChild>
               <Button
                 type="button"
@@ -59,7 +59,7 @@ export function CashFlowListItem({ bond, onDeleted }: CashFlowListItemProps) {
                   else window.location.reload();
                 }}
               >
-                Delete
+                Eliminar
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>

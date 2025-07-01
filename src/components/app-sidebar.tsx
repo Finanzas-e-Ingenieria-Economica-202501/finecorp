@@ -23,7 +23,7 @@ export function AppSidebar({ username }: { username?: string }) {
               <a href="#">
                 <DollarSign className="!size-5" />
                 <span className="text-base font-semibold">
-                  Welcome {username}
+                  Bienvenido {username}
                 </span>
               </a>
             </SidebarMenuButton>
