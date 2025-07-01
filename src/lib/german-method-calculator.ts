@@ -6,7 +6,7 @@ import { PaymentFrequency, InterestRateType, GracePeriodType, Actor, Compounding
 
 // Configure Decimal.js for high precision financial calculations (up to 9 decimal places)
 Decimal.set({ 
-  precision: 50, // High internal precision for calculations
+  precision: 12, // High internal precision for calculations
   rounding: Decimal.ROUND_HALF_UP,
   toExpNeg: -9, // Show up to 9 decimal places
   toExpPos: 9
@@ -407,7 +407,14 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   const utility = bondholderFlowPeriod0.plus(actualPrice);
   
   const duration = totalFAXTerm.div(totalActualFlow); // Use totalActualFlow for duration calculation
-  const convexity = totalConvexityFactor.div(totalActualFlow.mul(new Decimal(1).plus(periodCOK).pow(2)));
+  
+  // Convexity = suma(factor p/convexidad) / ((1+cok)^2 × suma(flujo actual) × (días del año / frecuencia del cupón)^2)
+  const frequencyAdjustment = new Decimal(data.daysPerYear).div(frequencyDays);
+  const convexityDenominator = new Decimal(1).plus(periodCOK).pow(2)
+    .mul(totalActualFlow)
+    .mul(frequencyAdjustment.pow(2));
+  const convexity = totalConvexityFactor.div(convexityDenominator);
+  
   const modifiedDuration = duration.div(new Decimal(1).plus(periodCOK));
   
   // Calculate TCEA and TREA (these would require solving for IRR - simplified here)
