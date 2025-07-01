@@ -12,11 +12,8 @@ export type CashFlowFormData = z.infer<typeof CashFlowFormValidator>;
 export interface CashFlowPeriod {
   period: number;
   programmingDate: Date;
-  annualInflation: Decimal;
-  semestralInflation: Decimal;
   gracePeriodType: string;
   bond: Decimal;
-  bondIndexed: Decimal;
   coupon: Decimal; // Interest
   quota: Decimal;
   amortization: Decimal;
@@ -308,11 +305,8 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   periods.push({
     period: 0,
     programmingDate: paymentDates[0],
-    annualInflation: new Decimal(0),
-    semestralInflation: new Decimal(0),
     gracePeriodType: '',
     bond: new Decimal(0),
-    bondIndexed: new Decimal(0),
     coupon: new Decimal(0),
     quota: new Decimal(0),
     amortization: new Decimal(0),
@@ -360,11 +354,8 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     periods.push({
       period: i,
       programmingDate: paymentDates[i],
-      annualInflation: new Decimal(0), // Not used in this example
-      semestralInflation: new Decimal(0), // Not used in this example
       gracePeriodType,
       bond: remainingBond,
-      bondIndexed: remainingBond, // Same as bond when no inflation
       coupon: coupon.negated(), // Negative because it's an outflow for emitter
       quota: quota.negated(), // Negative because it's an outflow for emitter
       amortization: amortization.negated(), // Negative because it's an outflow for emitter

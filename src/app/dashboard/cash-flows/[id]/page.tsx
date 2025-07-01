@@ -213,11 +213,8 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
           <TableRow>
             <TableHead>Nº</TableHead>
             <TableHead>Fecha Programada</TableHead>
-            <TableHead>Inflación Anual</TableHead>
-            <TableHead>Inflación Semestral</TableHead>
             <TableHead>Plazo de Gracia</TableHead>
             <TableHead>Bono</TableHead>
-            <TableHead>Bono Indexado</TableHead>
             <TableHead>Cupón (Interés)</TableHead>
             <TableHead>Cuota</TableHead>
             <TableHead>Amort.</TableHead>
@@ -236,11 +233,8 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
             <TableRow key={row.period}>
               <TableCell>{row.period}</TableCell>
               <TableCell>{row.programmingDate.toLocaleDateString('es-ES')}</TableCell>
-              <TableCell>{Number(row.annualInflation.toString()).toFixed(2)}%</TableCell>
-              <TableCell>{Number(row.semestralInflation.toString()).toFixed(3)}%</TableCell>
               <TableCell>{row.gracePeriodType}</TableCell>
               <TableCell>{Number(row.bond.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.bondIndexed.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
               <TableCell>{Number(row.coupon.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
               <TableCell>{Number(row.quota.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
               <TableCell>{Number(row.amortization.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
