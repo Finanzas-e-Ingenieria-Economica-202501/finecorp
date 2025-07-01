@@ -106,7 +106,7 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
   const { periods: schedule, summary } = result;
 
   return (
-    <div className="w-full max-w-full mx-auto py-8 overflow-x-auto">
+    <div className="w-full max-w-full mx-auto py-8 overflow-x-auto px-4">
       <h1 className="text-2xl font-bold mb-6">Cronograma de Pagos - Método Alemán</h1>
       
       {/* Summary Section */}
