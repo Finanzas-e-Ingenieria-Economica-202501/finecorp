@@ -272,13 +272,14 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   let nonGracePeriods = totalPeriods;
   const gracePeriodMap = new Map<number, string>();
   
-  // Process grace periods
+  // Process grace periods - ANY grace period (partial or total) has NO amortization
   data.gracePeriod.forEach(gp => {
     if (gp.type === GracePeriodType.total) {
       nonGracePeriods--;
-      gracePeriodMap.set(gp.period, 'P'); // Partial (no amortization)
+      gracePeriodMap.set(gp.period, 'T'); // Total grace (no amortization, no interest payment)
     } else if (gp.type === GracePeriodType.partial) {
-      gracePeriodMap.set(gp.period, 'P');
+      nonGracePeriods--;
+      gracePeriodMap.set(gp.period, 'P'); // Partial grace (no amortization, but pays interest)
     } else {
       gracePeriodMap.set(gp.period, 'S'); // Standard period
     }
@@ -323,13 +324,13 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   // Calculate remaining periods
   for (let i = 1; i <= totalPeriods; i++) {
     const gracePeriodType = gracePeriodMap.get(i) || 'S';
-    const isGracePeriod = gracePeriodType === 'P';
+    const hasGracePeriod = gracePeriodType === 'T' || gracePeriodType === 'P'; // Any grace period has no amortization
     
     // Calculate interest (coupon) on remaining bond
     const coupon = remainingBond.mul(effectivePeriodRate);
     
-    // Calculate amortization (0 for grace periods)
-    const amortization = isGracePeriod ? new Decimal(0) : constantAmortization;
+    // Calculate amortization (0 for ANY grace period - partial or total)
+    const amortization = hasGracePeriod ? new Decimal(0) : constantAmortization;
     
     // Calculate quota (coupon + amortization)
     const quota = coupon.plus(amortization);
@@ -369,8 +370,8 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
       convexityFactor
     });
     
-    // Update remaining bond
-    if (!isGracePeriod) {
+    // Update remaining bond (only reduce for periods that actually amortize)
+    if (!hasGracePeriod) {
       remainingBond = remainingBond.minus(amortization);
     }
   }
