@@ -234,18 +234,42 @@ export default async function CashFlowDetailPage({ params }: { params: { id: str
               <TableCell>{row.period}</TableCell>
               <TableCell>{row.programmingDate.toLocaleDateString('es-ES')}</TableCell>
               <TableCell>{row.gracePeriodType}</TableCell>
-              <TableCell>{Number(row.bond.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.coupon.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.quota.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.amortization.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.premium.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.shield.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.emitterFlow.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.emitterFlowWithShield.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.bondholderFlow.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.actualFlow.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.faXTerm.toString()).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}</TableCell>
-              <TableCell>{Number(row.convexityFactor.toString()).toLocaleString('es-ES', { maximumFractionDigits: 2 })}</TableCell>
+              <TableCell className={Number(row.bond.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.bond.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.coupon.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.coupon.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.quota.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.quota.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.amortization.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.amortization.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.premium.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.premium.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.shield.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.shield.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.emitterFlow.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.emitterFlow.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.emitterFlowWithShield.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.emitterFlowWithShield.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.bondholderFlow.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.bondholderFlow.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.actualFlow.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.actualFlow.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.faXTerm.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.faXTerm.toString())).toLocaleString('es-ES', { style: 'currency', currency: bond.currency || 'USD' })}
+              </TableCell>
+              <TableCell className={Number(row.convexityFactor.toString()) < 0 ? "text-red-400" : "text-blue-400"}>
+                {Math.abs(Number(row.convexityFactor.toString())).toLocaleString('es-ES', { maximumFractionDigits: 2 })}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
