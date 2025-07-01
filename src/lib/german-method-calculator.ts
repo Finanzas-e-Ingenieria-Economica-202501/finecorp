@@ -4,8 +4,13 @@ import { z } from 'zod';
 import { CashFlowFormValidator } from '../zod/cash-flow-form.validator';
 import { PaymentFrequency, InterestRateType, GracePeriodType, Actor, CompoundingFrequency, AmortizationMethod } from '../zod/cash-flow.enums';
 
-// Configure Decimal.js for high precision financial calculations
-Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_UP });
+// Configure Decimal.js for high precision financial calculations (up to 9 decimal places)
+Decimal.set({ 
+  precision: 50, // High internal precision for calculations
+  rounding: Decimal.ROUND_HALF_UP,
+  toExpNeg: -9, // Show up to 9 decimal places
+  toExpPos: 9
+});
 
 export type CashFlowFormData = z.infer<typeof CashFlowFormValidator>;
 
@@ -301,7 +306,12 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   
   // Period 0 (emission)
   const initialCosts = calculateInitialCosts(data, comercialValue);
-  const period0Flow = comercialValue.minus(initialCosts.bondholderCosts);
+  
+  // Emitter receives commercial value but pays their initial costs
+  const emitterPeriod0Flow = comercialValue.minus(initialCosts.emitterCosts);
+  
+  // Bondholder pays commercial value plus their initial costs
+  const bondholderPeriod0Flow = comercialValue.plus(initialCosts.bondholderCosts).negated();
   
   periods.push({
     period: 0,
@@ -313,9 +323,9 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     amortization: new Decimal(0),
     premium: new Decimal(0),
     shield: new Decimal(0),
-    emitterFlow: period0Flow,
-    emitterFlowWithShield: period0Flow,
-    bondholderFlow: period0Flow.negated(),
+    emitterFlow: emitterPeriod0Flow,
+    emitterFlowWithShield: emitterPeriod0Flow, // No shield in period 0
+    bondholderFlow: bondholderPeriod0Flow,
     actualFlow: new Decimal(0),
     faXTerm: new Decimal(0),
     convexityFactor: new Decimal(0)
@@ -354,6 +364,7 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     const periodDaysRatio = new Decimal(frequencyDays).div(data.daysPerYear);
     const faXTerm = actualFlow.mul(i).mul(periodDaysRatio);
     
+    // Factor p/Convexidad = Flujo Actual × Nº Período × (1 + Nº Período)
     const convexityFactor = actualFlow.mul(i).mul(i + 1);
     
     periods.push({
@@ -385,10 +396,18 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   const totalFAXTerm = periods.slice(1).reduce((sum, p) => sum.plus(p.faXTerm), new Decimal(0));
   const totalConvexityFactor = periods.slice(1).reduce((sum, p) => sum.plus(p.convexityFactor), new Decimal(0));
   
-  const actualPrice = totalActualFlow;
-  const utility = actualPrice.minus(comercialValue.minus(initialCosts.bondholderCosts));
-  const duration = totalFAXTerm.div(actualPrice);
-  const convexity = totalConvexityFactor.div(actualPrice.mul(new Decimal(1).plus(periodCOK).pow(2)));
+  // Precio Actual = NPV(COK, flujos bonista períodos 1+ sin incluir período 0)
+  const actualPrice = periods.slice(1).reduce((sum, p) => {
+    const discountFactor = new Decimal(1).plus(periodCOK).pow(p.period);
+    return sum.plus(p.bondholderFlow.div(discountFactor));
+  }, new Decimal(0));
+  
+  // VAN (Utilidad/Pérdida) = Flujo del bonista período 0 + Precio Actual
+  const bondholderFlowPeriod0 = periods[0].bondholderFlow;
+  const utility = bondholderFlowPeriod0.plus(actualPrice);
+  
+  const duration = totalFAXTerm.div(totalActualFlow); // Use totalActualFlow for duration calculation
+  const convexity = totalConvexityFactor.div(totalActualFlow.mul(new Decimal(1).plus(periodCOK).pow(2)));
   const modifiedDuration = duration.div(new Decimal(1).plus(periodCOK));
   
   // Calculate TCEA and TREA (these would require solving for IRR - simplified here)
