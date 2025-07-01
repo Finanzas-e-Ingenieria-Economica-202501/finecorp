@@ -349,7 +349,11 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     // Discount factor for present value calculations
     const discountFactor = new Decimal(1).plus(periodCOK).pow(i);
     const actualFlow = bondholderFlow.div(discountFactor);
-    const faXTerm = actualFlow.mul(i);
+    
+    // FA x Plazo = Flujo Actual × Nº Período × (Días del período / Días del año)
+    const periodDaysRatio = new Decimal(frequencyDays).div(data.daysPerYear);
+    const faXTerm = actualFlow.mul(i).mul(periodDaysRatio);
+    
     const convexityFactor = actualFlow.mul(i).mul(i + 1);
     
     periods.push({
