@@ -3,7 +3,7 @@ import { addDays, addMonths } from 'date-fns';
 import { z } from 'zod';
 import { CashFlowFormValidator } from '../zod/cash-flow-form.validator';
 import { PaymentFrequency, InterestRateType, GracePeriodType, Actor, CompoundingFrequency, AmortizationMethod } from '../zod/cash-flow.enums';
-import {npv, irr} from "financial"
+import {irr} from "financial"
 // Configure Decimal.js for high precision financial calculations (up to 9 decimal places)
 Decimal.set({ 
   precision: 12, // High internal precision for calculations
@@ -397,9 +397,11 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   const totalConvexityFactor = periods.slice(1).reduce((sum, p) => sum.plus(p.convexityFactor), new Decimal(0));
   
   // Precio Actual = NPV(COK, flujos bonista períodos 1+ sin incluir período 0)
-  // Using financial library NPV function
-  const bondholderFlowsForNPV = periods.slice(1).map(p => p.bondholderFlow.toNumber());
-  const actualPrice = new Decimal(npv(periodCOK.toNumber(), bondholderFlowsForNPV));
+  // Calculate manually: sum of (bondholderFlow / (1+COK)^period) for periods 1+
+  const actualPrice = periods.slice(1).reduce((sum, p) => {
+    const discountFactor = new Decimal(1).plus(periodCOK).pow(p.period);
+    return sum.plus(p.bondholderFlow.div(discountFactor));
+  }, new Decimal(0));
   
   // VAN (Utilidad/Pérdida) = Flujo del bonista período 0 + Precio Actual
   const bondholderFlowPeriod0 = periods[0].bondholderFlow;
