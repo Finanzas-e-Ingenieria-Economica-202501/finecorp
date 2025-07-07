@@ -1,5 +1,4 @@
 import { CalculationSummary } from './german-method-calculator';
-import Decimal from 'decimal.js';
 
 export interface FinancialInterpretations {
   priceRendimiento: string;
@@ -47,11 +46,11 @@ export function generateFinancialInterpretations(
   return {
     priceRendimiento: interpretPriceYield(priceYieldRatio, cok, bondholderTREANum),
     
-    convexidad: interpretConvexity(convexityNum, modifiedDurationNum),
+    convexidad: interpretConvexity(convexityNum),
     
     duracionModificada: interpretModifiedDuration(modifiedDurationNum),
     
-    volatilidad: durationNum > 0 ? interpretVolatility(durationNum, modifiedDurationNum) : undefined,
+    volatilidad: durationNum > 0 ? interpretVolatility(durationNum) : undefined,
     
     precioActual: interpretCurrentPrice(actualPriceNum, nominalValue, comercialValue),
     
@@ -108,9 +107,7 @@ function interpretPriceYield(priceYieldRatio: number, cok: number, bondholderTRE
   }
 }
 
-function interpretConvexity(convexity: number, modifiedDuration: number): string {
-  const convexityRatio = convexity / modifiedDuration;
-  
+function interpretConvexity(convexity: number): string {
   if (convexity > 15) {
     return `La convexidad de ${convexity.toFixed(2)} es alta, lo que significa que el bono tiene buena protección cuando las tasas de interés suben y bajan. Si las tasas bajan, el precio del bono sube más de lo esperado; si las tasas suben, el precio baja menos de lo esperado. Esto es una ventaja para el inversionista.`;
   } else if (convexity > 8) {
@@ -130,9 +127,7 @@ function interpretModifiedDuration(modifiedDuration: number): string {
   }
 }
 
-function interpretVolatility(duration: number, modifiedDuration: number): string {
-  const volatilityIndicator = duration / modifiedDuration;
-  
+function interpretVolatility(duration: number): string {
   if (duration > 10) {
     return `La duración de ${duration.toFixed(2)} períodos muestra que el bono está expuesto a cambios importantes en las tasas de interés. El tiempo promedio de recuperación de la inversión es largo, lo que hace que el bono sea más sensible a las variaciones del mercado y requiere mayor atención.`;
   } else if (duration > 5) {
