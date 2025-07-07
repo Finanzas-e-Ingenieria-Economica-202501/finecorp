@@ -21,6 +21,7 @@ import {
     Actor,
     GracePeriodType,
 } from "@/zod/cash-flow.enums";
+import { generateFinancialInterpretations } from "@/lib/financial-interpretations";
 import prisma from "@/lib/prisma";
 import { getCurrentUser } from "@/services/auth.service";
 import { notFound } from "next/navigation";
@@ -158,6 +159,14 @@ export default async function CashFlowDetailPage({
     // Calculate using the new German method
     const result = calculateGermanMethod(formData);
     const { periods: schedule, summary } = result;
+
+    // Generate financial interpretations
+    const interpretations = generateFinancialInterpretations(
+        summary,
+        Number(bond.nominal_value),
+        Number(bond.comercial_value),
+        Number(bond.cok || 0)
+    );
 
     return (
         <div className="w-full max-w-full mx-auto py-8 overflow-x-auto px-4">
@@ -304,6 +313,138 @@ export default async function CashFlowDetailPage({
                         </div>
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* Financial Interpretations Section */}
+            <div className="mb-8">
+                <h2 className="text-xl font-semibold mb-4">
+                    Análisis e Interpretaciones Financieras
+                </h2>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Análisis de Riesgo y Sensibilidad</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                                <h4 className="font-medium text-sm mb-2 text-blue-700 dark:text-blue-300">
+                                    Duración Modificada
+                                </h4>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                    {interpretations.duracionModificada}
+                                </p>
+                            </div>
+                            <div className="p-3 bg-purple-50 dark:bg-purple-950 rounded-lg">
+                                <h4 className="font-medium text-sm mb-2 text-purple-700 dark:text-purple-300">
+                                    Convexidad
+                                </h4>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                    {interpretations.convexidad}
+                                </p>
+                            </div>
+                            {interpretations.volatilidad && (
+                                <div className="p-3 bg-amber-50 dark:bg-amber-950 rounded-lg">
+                                    <h4 className="font-medium text-sm mb-2 text-amber-700 dark:text-amber-300">
+                                        Volatilidad
+                                    </h4>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                                        {interpretations.volatilidad}
+                                    </p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-base">Análisis de Precios y Rentabilidad</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg">
+                                <h4 className="font-medium text-sm mb-2 text-green-700 dark:text-green-300">
+                                    Relación Precio / Rendimiento
+                                </h4>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                    {interpretations.priceRendimiento}
+                                </p>
+                            </div>
+                            <div className="p-3 bg-indigo-50 dark:bg-indigo-950 rounded-lg">
+                                <h4 className="font-medium text-sm mb-2 text-indigo-700 dark:text-indigo-300">
+                                    Precio Actual
+                                </h4>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                    {interpretations.precioActual}
+                                </p>
+                            </div>
+                            <div className="p-3 bg-cyan-50 dark:bg-cyan-950 rounded-lg">
+                                <h4 className="font-medium text-sm mb-2 text-cyan-700 dark:text-cyan-300">
+                                    Utilidad/Pérdida
+                                </h4>
+                                <p className="text-sm text-gray-700 dark:text-gray-300">
+                                    {interpretations.utilidadPerdida}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="lg:col-span-2">
+                        <CardHeader>
+                            <CardTitle className="text-base">Análisis de Tasas de Rentabilidad</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="p-3 bg-red-50 dark:bg-red-950 rounded-lg">
+                                    <h4 className="font-medium text-sm mb-2 text-red-700 dark:text-red-300">
+                                        TCEA del Emisor
+                                    </h4>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                                        {interpretations.tceaEmisor}
+                                    </p>
+                                </div>
+                                <div className="p-3 bg-orange-50 dark:bg-orange-950 rounded-lg">
+                                    <h4 className="font-medium text-sm mb-2 text-orange-700 dark:text-orange-300">
+                                        TCEA del Emisor con Escudo
+                                    </h4>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                                        {interpretations.tceaEmisorEscudo}
+                                    </p>
+                                </div>
+                                <div className="p-3 bg-emerald-50 dark:bg-emerald-950 rounded-lg">
+                                    <h4 className="font-medium text-sm mb-2 text-emerald-700 dark:text-emerald-300">
+                                        TREA del Bonista
+                                    </h4>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300">
+                                        {interpretations.treaBonista}
+                                    </p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Conclusión General */}
+                    <Card className="lg:col-span-2">
+                        <CardHeader>
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <span className="text-lg">📊</span>
+                                Conclusión Ejecutiva
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="p-4 bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900 dark:to-gray-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <div className="prose prose-sm max-w-none text-gray-700 dark:text-gray-300">
+                                    {interpretations.conclusionGeneral.split('**').map((segment, index) => {
+                                        if (index % 2 === 1) {
+                                            // This is a bold segment
+                                            return <strong key={index} className="font-semibold text-gray-900 dark:text-gray-100">{segment}</strong>;
+                                        }
+                                        // This is regular text
+                                        return <span key={index}>{segment}</span>;
+                                    })}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
 
             {/* Cash Flow Table */}
