@@ -58,6 +58,7 @@ export async function createCashFlowAction(formData: unknown) {
       cavali_apply_to: data.cavaliApplyTo,
       cok: data.cok,
       income_tax: data.income_tax ?? 0,
+      apply_prima_in: data.applyPrimaIn,
       bond_grace_period: data.gracePeriod.length > 0 ? {
         create: data.gracePeriod.map((gp) => ({
           period: gp.period,
@@ -214,6 +215,7 @@ export async function updateCashFlowAction(id: string, formData: unknown) {
       cavali_apply_to: data.cavaliApplyTo,
       cok: data.cok,
       income_tax: data.income_tax ?? 0,
+      apply_prima_in: data.applyPrimaIn,
       bond_grace_period: data.gracePeriod.length > 0 ? {
         create: data.gracePeriod.map((gp) => ({
           period: gp.period,
