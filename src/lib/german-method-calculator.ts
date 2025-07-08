@@ -245,6 +245,7 @@ function calculateInitialCosts(
 export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResult {
   // Convert input data to Decimal for precision
   const comercialValue = new Decimal(data.comercialValue);
+  const nominalValue = new Decimal(data.nominalValue);
   const interestRate = new Decimal(data.interestRate);
   const cok = new Decimal(data.cok);
   const incomeTax = new Decimal(data.income_tax);
@@ -302,7 +303,7 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   
   // Calculate periods
   const periods: CashFlowPeriod[] = [];
-  let remainingBond = comercialValue;
+  let remainingBond = nominalValue;
   
   // Period 0 (emission)
   const initialCosts = calculateInitialCosts(data, comercialValue);
@@ -335,18 +336,15 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
   let premiumBase = new Decimal(0);
   if (data.applyPrimaIn === ApplyPrimaIn.beginning) {
     premiumBase = comercialValue;
+  } else {
+    // Se asignará el valor correcto al final del loop
   }
-  let lastPeriodInitialBond = new Decimal(0);
+  let lastPeriodBond = new Decimal(0);
   
   // Calculate remaining periods
   for (let i = 1; i <= totalPeriods; i++) {
     const gracePeriodType = gracePeriodMap.get(i) || 'S';
     const hasGracePeriod = gracePeriodType === 'T' || gracePeriodType === 'P'; // Any grace period has no amortization
-    
-    // Guardar el saldo inicial del último periodo
-    if (i === totalPeriods) {
-      lastPeriodInitialBond = remainingBond;
-    }
     
     // Calculate interest (coupon) on remaining bond
     const coupon = remainingBond.mul(effectivePeriodRate);
@@ -360,10 +358,14 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     // Calcular premium (solo en el último periodo, base según applyPrimaIn)
     let premiumAmount = new Decimal(0);
     if (i === totalPeriods) {
+      console.log("prima", prima)
+      console.log("premiumBase", premiumBase)
       if (data.applyPrimaIn === ApplyPrimaIn.end) {
-        premiumBase = lastPeriodInitialBond;
+        premiumBase = lastPeriodBond;
       }
+
       premiumAmount = premiumBase.mul(prima).div(100);
+      console.log("premiumAmount", premiumAmount)
     }
     
     // Calculate shield (tax benefit)
@@ -405,7 +407,7 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     
     // Guardar el saldo del bono del último periodo
     if (i === totalPeriods) {
-      lastPeriodInitialBond = remainingBond;
+      lastPeriodBond = remainingBond;
     }
     
     // Update remaining bond (only reduce for periods that actually amortize)
