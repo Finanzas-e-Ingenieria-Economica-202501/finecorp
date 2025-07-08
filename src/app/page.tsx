@@ -40,7 +40,7 @@ export default function Home() {
         try {
             const result = await loginUser(data);
             console.log(result);
-            router.push("/dashboard/home");
+            router.push(PATHS.DASHBOARD.CASH_FLOWS.ROOT);
         } catch (error) {
             console.log("Login error:", error);
             // Aquí podrías mostrar un toast o mensaje de error
