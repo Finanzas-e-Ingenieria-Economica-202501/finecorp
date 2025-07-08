@@ -5,7 +5,8 @@ import {
   CompoundingFrequency, 
   AmortizationMethod, 
   Actor, 
-  GracePeriodType as EnumGracePeriodType 
+  GracePeriodType as EnumGracePeriodType, 
+  ApplyPrimaIn 
 } from '../zod/cash-flow.enums';
 
 export type GracePeriodType = "none" | "partial" | "total";
@@ -55,6 +56,7 @@ export interface PaymentPlanInput {
   cavaliApplyTo?: string;
   cok: number;
   income_tax?: number;
+  applyPrimaIn?: ApplyPrimaIn;
 }
 
 /**
@@ -145,28 +147,46 @@ export function calculateGermanBondSchedule(input: PaymentPlanInput): PaymentRow
       period: gp.period,
       type: stringToGracePeriodType(gp.type),
       duration: gp.duration
-    }))
+    })),
+    applyPrimaIn: input.applyPrimaIn || ApplyPrimaIn.end,
   };
 
   // Calculate using the German method
   const result = calculateGermanMethod(formData);
 
-  // Convert results to PaymentRow format
-  return result.periods.map(period => ({
-    period: period.period,
-    date: period.programmingDate,
-    gracePeriod: period.gracePeriodType || '',
-    bond: Number(period.bond.toString()),
-    coupon: Number(period.coupon.toString()),
-    installment: Number(period.quota.toString()),
-    amortization: Number(period.amortization.toString()),
-    premium: Number(period.premium.toString()),
-    shield: Number(period.shield.toString()),
-    emitterFlow: Number(period.emitterFlow.toString()),
-    emitterFlowWithShield: Number(period.emitterFlowWithShield.toString()),
-    bondholderFlow: Number(period.bondholderFlow.toString()),
-    actualizedFlow: Number(period.actualFlow.toString()),
-    faByPeriod: Number(period.faXTerm.toString()),
-    convexityFactor: Number(period.convexityFactor.toString())
-  }));
+  // --- Prima calculation logic ---
+  // Determine the base for the premium (prima)
+  let premiumBase = 0;
+  if (formData.applyPrimaIn === ApplyPrimaIn.beginning) {
+    // Use the initial bond value (first period saldo)
+    premiumBase = Number(result.periods[0]?.bond ?? 0);
+  } else {
+    // Use the last bond value (last period saldo)
+    premiumBase = Number(result.periods[result.periods.length - 1]?.bond ?? 0);
+  }
+  const premiumAmount = (formData.prima || 0) * premiumBase / 100;
+
+  // Assign premium only to the last period
+  const paymentRows = result.periods.map((period, idx) => {
+    const isLast = idx === result.periods.length - 1;
+    return {
+      period: period.period,
+      date: period.programmingDate,
+      gracePeriod: period.gracePeriodType || '',
+      bond: Number(period.bond.toString()),
+      coupon: Number(period.coupon.toString()),
+      installment: Number(period.quota.toString()),
+      amortization: Number(period.amortization.toString()),
+      premium: isLast ? premiumAmount : 0,
+      shield: Number(period.shield.toString()),
+      emitterFlow: Number(period.emitterFlow.toString()),
+      emitterFlowWithShield: Number(period.emitterFlowWithShield.toString()),
+      bondholderFlow: Number(period.bondholderFlow.toString()),
+      actualizedFlow: Number(period.actualFlow.toString()),
+      faByPeriod: Number(period.faXTerm.toString()),
+      convexityFactor: Number(period.convexityFactor.toString())
+    };
+  });
+
+  return paymentRows;
 }

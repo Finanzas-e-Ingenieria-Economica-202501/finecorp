@@ -2,7 +2,7 @@ import Decimal from 'decimal.js';
 import { addDays, addMonths } from 'date-fns';
 import { z } from 'zod';
 import { CashFlowFormValidator } from '../zod/cash-flow-form.validator';
-import { PaymentFrequency, InterestRateType, GracePeriodType, Actor, CompoundingFrequency, AmortizationMethod } from '../zod/cash-flow.enums';
+import { PaymentFrequency, InterestRateType, GracePeriodType, Actor, CompoundingFrequency, AmortizationMethod, ApplyPrimaIn } from '../zod/cash-flow.enums';
 import {irr} from "financial"
 // Configure Decimal.js for high precision financial calculations (up to 9 decimal places)
 Decimal.set({ 
@@ -331,10 +331,22 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     convexityFactor: new Decimal(0)
   });
   
+  // --- Calcular prima según applyPrimaIn ---
+  let premiumBase = new Decimal(0);
+  if (data.applyPrimaIn === ApplyPrimaIn.beginning) {
+    premiumBase = comercialValue;
+  }
+  let lastPeriodInitialBond = new Decimal(0);
+  
   // Calculate remaining periods
   for (let i = 1; i <= totalPeriods; i++) {
     const gracePeriodType = gracePeriodMap.get(i) || 'S';
     const hasGracePeriod = gracePeriodType === 'T' || gracePeriodType === 'P'; // Any grace period has no amortization
+    
+    // Guardar el saldo inicial del último periodo
+    if (i === totalPeriods) {
+      lastPeriodInitialBond = remainingBond;
+    }
     
     // Calculate interest (coupon) on remaining bond
     const coupon = remainingBond.mul(effectivePeriodRate);
@@ -345,8 +357,14 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
     // Calculate quota (coupon + amortization)
     const quota = coupon.plus(amortization);
     
-    // Calculate premium (only in last period)
-    const premiumAmount = i === totalPeriods ? comercialValue.mul(prima).div(100) : new Decimal(0);
+    // Calcular premium (solo en el último periodo, base según applyPrimaIn)
+    let premiumAmount = new Decimal(0);
+    if (i === totalPeriods) {
+      if (data.applyPrimaIn === ApplyPrimaIn.end) {
+        premiumBase = lastPeriodInitialBond;
+      }
+      premiumAmount = premiumBase.mul(prima).div(100);
+    }
     
     // Calculate shield (tax benefit)
     const shield = coupon.mul(incomeTax).div(100);
@@ -384,6 +402,11 @@ export function calculateGermanMethod(data: CashFlowFormData): GermanMethodResul
       faXTerm,
       convexityFactor
     });
+    
+    // Guardar el saldo del bono del último periodo
+    if (i === totalPeriods) {
+      lastPeriodInitialBond = remainingBond;
+    }
     
     // Update remaining bond (only reduce for periods that actually amortize)
     if (!hasGracePeriod) {
@@ -501,7 +524,8 @@ export function testGermanMethod(): GermanMethodResult {
     gracePeriod: [
       { period: 1, type: GracePeriodType.partial, duration: 0 },
       { period: 2, type: GracePeriodType.partial, duration: 0 }
-    ]
+    ],
+    applyPrimaIn: ApplyPrimaIn.beginning,
   };
   
   return calculateGermanMethod(testData);
