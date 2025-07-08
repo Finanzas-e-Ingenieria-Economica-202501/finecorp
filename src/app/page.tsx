@@ -24,7 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { toast } from "sonner";
 
 export default function Home() {
     const router = useRouter();
@@ -43,8 +43,9 @@ export default function Home() {
             router.push(PATHS.DASHBOARD.CASH_FLOWS.ROOT);
         } catch (error) {
             console.log("Login error:", error);
-            // Aquí podrías mostrar un toast o mensaje de error
-            router.push(PATHS.LOGIN);
+            toast.error(
+                error instanceof Error ? error.message : "Error al iniciar sesión. Intenta de nuevo."
+            );
         }
     });
 
@@ -98,8 +99,12 @@ export default function Home() {
                             />
                         </CardContent>
                         <CardFooter>
-                            <Button type="submit" className="w-full">
-                                <span>Iniciar Sesión</span>
+                            <Button type="submit" className="w-full" disabled={formState.formState.isSubmitting}>
+                                {formState.formState.isSubmitting ? (
+                                    <span>Cargando...</span>
+                                ) : (
+                                    <span>Iniciar Sesión</span>
+                                )}
                             </Button>
                         </CardFooter>
                     </Card>

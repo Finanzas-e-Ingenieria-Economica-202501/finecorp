@@ -40,6 +40,11 @@ enum Actor {
   both = "both",
 }
 
+enum ApplyPrimaIn {
+  beginning = "beginning",
+  end = "end",
+}
+
 export {
   AmortizationMethod,
   CompoundingFrequency,
@@ -47,4 +52,5 @@ export {
   InterestRateType,
   PaymentFrequency,
   Actor,
+  ApplyPrimaIn
 };

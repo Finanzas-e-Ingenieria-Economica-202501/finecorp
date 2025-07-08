@@ -1,12 +1,13 @@
 "use server";
 
-import { DEFAULTS } from "@/lib/defaults";
+import { DEFAULTS, PATHS } from "@/lib/defaults";
 import prisma from "@/lib/prisma";
 import { JWTPayload } from "@/types/jwt.types";
 import { UserValidator } from "@/zod/user.validator";
 import bcrypt from "bcrypt";
 import { jwtSign, jwtVerify } from "./jwt.service";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function registerUser({
   username,
@@ -86,6 +87,7 @@ export async function logoutUser() {
   const cookiesStore = await cookies();
   
   cookiesStore.delete("token");
+  redirect(PATHS.LOGIN);
 }
 
 export async function getCurrentUser(): Promise<JWTPayload> {

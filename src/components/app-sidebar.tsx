@@ -1,3 +1,4 @@
+"use client";
 import { DollarSign } from "lucide-react";
 import {
   Sidebar,
@@ -9,8 +10,18 @@ import {
   SidebarMenuItem,
 } from "./ui/sidebar";
 import NavMain from "./nav-main";
+import { useRouter } from "next/navigation";
+import { logoutUser } from "@/services/auth.service";
+import { Button } from "./ui/button";
 
 export function AppSidebar({ username }: { username?: string }) {
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await logoutUser();
+    router.push("/login");
+  };
+
   return (
     <Sidebar collapsible="offcanvas">
       <SidebarHeader>
@@ -35,7 +46,11 @@ export function AppSidebar({ username }: { username?: string }) {
         <NavMain />
       </SidebarContent>
 
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter>
+        <Button variant="outline" className="w-full" onClick={handleSignOut}>
+          Cerrar sesión
+        </Button>
+      </SidebarFooter>
     </Sidebar>
   );
 }

@@ -16,6 +16,7 @@ import {
     InterestRateType,
     PaymentFrequency,
     Actor,
+    ApplyPrimaIn,
 } from "@/zod/cash-flow.enums";
 import { CashFlowFormValidator } from "@/zod/cash-flow-form.validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,6 +32,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { createCashFlowAction } from "@/services/cash-flow.service";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function NewCashFlowPage() {
     const formState = useForm({
@@ -59,6 +61,7 @@ export default function NewCashFlowPage() {
             cok: 0,
             income_tax: 0,
             gracePeriod: [],
+            applyPrimaIn: ApplyPrimaIn.beginning
         },
     });
 
@@ -722,6 +725,41 @@ export default function NewCashFlowPage() {
                                             placeholder="0"
                                             {...field}
                                         />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        {/* Radio group para aplicar prima al inicio o al final */}
+                        <FormField
+                            control={formState.control}
+                            name="applyPrimaIn"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                    <FormLabel>Aplicar prima</FormLabel>
+                                    <FormControl>
+                                        <RadioGroup
+                                            onValueChange={field.onChange}
+                                            value={field.value}
+                                            className="flex flex-col"
+                                        >
+                                            <FormItem className="flex items-center gap-3">
+                                                <FormControl>
+                                                    <RadioGroupItem value={ApplyPrimaIn.beginning} />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                    Al inicio del periodo
+                                                </FormLabel>
+                                            </FormItem>
+                                            <FormItem className="flex items-center gap-3">
+                                                <FormControl>
+                                                    <RadioGroupItem value={ApplyPrimaIn.end} />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                    Al final del periodo
+                                                </FormLabel>
+                                            </FormItem>
+                                        </RadioGroup>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
