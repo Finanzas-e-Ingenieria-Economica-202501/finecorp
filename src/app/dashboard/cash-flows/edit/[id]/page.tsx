@@ -817,6 +817,39 @@ export default function EditCashFlowPage() {
                                 </FormItem>
                             )}
                         />
+                        {/* Apply Prima In - Radio Group */}
+                        <FormField
+                            control={formState.control}
+                            name="applyPrimaIn"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                    <FormLabel>Aplicar Prima</FormLabel>
+                                    <FormControl>
+                                        <div className="flex flex-col gap-2">
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    value="beginning"
+                                                    checked={field.value === "beginning"}
+                                                    onChange={() => field.onChange("beginning")}
+                                                />
+                                                <span>Al inicio (valor comercial inicial)</span>
+                                            </label>
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                    type="radio"
+                                                    value="end"
+                                                    checked={field.value === "end"}
+                                                    onChange={() => field.onChange("end")}
+                                                />
+                                                <span>Al final (saldo del último periodo)</span>
+                                            </label>
+                                        </div>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         {/* Structuring */}
                         <FormField

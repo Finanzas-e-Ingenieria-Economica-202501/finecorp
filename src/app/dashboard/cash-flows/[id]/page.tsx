@@ -20,6 +20,7 @@ import {
     AmortizationMethod,
     Actor,
     GracePeriodType,
+    ApplyPrimaIn,
 } from "@/zod/cash-flow.enums";
 import { generateFinancialInterpretations } from "@/lib/financial-interpretations";
 import prisma from "@/lib/prisma";
@@ -117,6 +118,17 @@ export default async function CashFlowDetailPage({
         }
     }
 
+    function stringToApplyPrimaIn(applyPrimaIn?: string): ApplyPrimaIn {
+        switch (applyPrimaIn) {
+            case "beginning":
+                return ApplyPrimaIn.beginning;
+            case "end":
+                return ApplyPrimaIn.end;
+            default:
+                return ApplyPrimaIn.end;
+        }
+    }
+
     // Prepare input for calculation using the new German method
     const formData: CashFlowFormData = {
         currency: bond.currency || "USD",
@@ -154,6 +166,7 @@ export default async function CashFlowDetailPage({
             type: stringToGracePeriodType(gp.type || "none"),
             duration: gp.duration ?? undefined,
         })),
+        applyPrimaIn: stringToApplyPrimaIn(bond.apply_prima_in || undefined),
     };
 
     // Calculate using the new German method

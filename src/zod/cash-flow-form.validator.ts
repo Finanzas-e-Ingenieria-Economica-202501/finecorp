@@ -6,6 +6,7 @@ import {
   InterestRateType,
   PaymentFrequency,
   Actor,
+  ApplyPrimaIn,
 } from "./cash-flow.enums";
 
 export const CashFlowFormValidator = z.object({
@@ -43,6 +44,8 @@ export const CashFlowFormValidator = z.object({
   cok: z.coerce.number().min(0, "COK must be positive"),
   // Income tax rate (expressed as percentage, e.g., 30 for 30%)
   income_tax: z.coerce.number().min(0, "Income tax must be positive").default(0),
+
+  applyPrimaIn: z.nativeEnum(ApplyPrimaIn).default(ApplyPrimaIn.beginning),
 
   // --- Plazo de gracia ---
   gracePeriod: z.array(z.object({
