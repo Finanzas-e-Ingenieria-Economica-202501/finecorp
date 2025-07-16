@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { CashFlowFormValidator } from '../zod/cash-flow-form.validator';
 import { PaymentFrequency, InterestRateType, GracePeriodType, Actor, CompoundingFrequency, AmortizationMethod, ApplyPrimaIn } from '../zod/cash-flow.enums';
 import { irr } from 'financial';
+import { PaymentPlanInput, PaymentRow, stringToActor, stringToCompoundingFrequency, stringToGracePeriodType, stringToPaymentFrequency } from './german-method';
 
 // Configure Decimal.js for high precision financial calculations
 Decimal.set({

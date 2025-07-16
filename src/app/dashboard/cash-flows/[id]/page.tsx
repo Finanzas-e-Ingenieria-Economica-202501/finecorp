@@ -129,7 +129,7 @@ export default async function CashFlowDetailPage({
         }
     }
 
-    // Prepare input for calculation using the new German method
+    // Preparar input para cálculo según método seleccionado
     const formData: CashFlowFormData = {
         currency: bond.currency || "USD",
         interestRateType:
@@ -146,7 +146,9 @@ export default async function CashFlowDetailPage({
         comercialValue: Number(bond.comercial_value),
         paymentFrequency: stringToPaymentFrequency(bond.payment_frequency),
         years: bond.years,
-        amortizationMethod: AmortizationMethod.german,
+        amortizationMethod: bond.amortization_method === "french"
+            ? AmortizationMethod.french
+            : AmortizationMethod.german,
         emissionDate: bond.emission_date,
         prima: Number(bond.prima || 0),
         structuration: Number(bond.structuration || 0),
@@ -169,9 +171,19 @@ export default async function CashFlowDetailPage({
         applyPrimaIn: stringToApplyPrimaIn(bond.apply_prima_in || undefined),
     };
 
-    // Calculate using the new German method
-    const result = calculateGermanMethod(formData);
-    const { periods: schedule, summary } = result;
+    // Calcular según método seleccionado
+    let schedule, summary;
+    if (formData.amortizationMethod === AmortizationMethod.french) {
+        // Importar dinámicamente el método francés
+        const { calculateFrenchMethod } = await import("@/lib/french-method");
+        const result = calculateFrenchMethod(formData);
+        schedule = result.periods;
+        summary = result.summary;
+    } else {
+        const result = calculateGermanMethod(formData);
+        schedule = result.periods;
+        summary = result.summary;
+    }
 
     // Generate financial interpretations
     const interpretations = generateFinancialInterpretations(

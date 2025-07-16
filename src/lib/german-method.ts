@@ -62,7 +62,7 @@ export interface PaymentPlanInput {
 /**
  * Converts string frequency to enum
  */
-function stringToPaymentFrequency(frequency: string): PaymentFrequency {
+export function stringToPaymentFrequency(frequency: string): PaymentFrequency {
   switch (frequency) {
     case 'daily': return PaymentFrequency.daily;
     case 'monthly': return PaymentFrequency.monthly;
@@ -77,7 +77,7 @@ function stringToPaymentFrequency(frequency: string): PaymentFrequency {
 /**
  * Converts string frequency to compounding frequency enum
  */
-function stringToCompoundingFrequency(frequency?: string): CompoundingFrequency | undefined {
+export function stringToCompoundingFrequency(frequency?: string): CompoundingFrequency | undefined {
   if (!frequency) return undefined;
   switch (frequency) {
     case 'daily': return CompoundingFrequency.daily;
@@ -93,7 +93,7 @@ function stringToCompoundingFrequency(frequency?: string): CompoundingFrequency 
 /**
  * Converts string actor to enum
  */
-function stringToActor(actor?: string): Actor {
+export function stringToActor(actor?: string): Actor {
   switch (actor) {
     case 'emitter': return Actor.emitter;
     case 'bondholder': return Actor.bondholder;
@@ -105,7 +105,7 @@ function stringToActor(actor?: string): Actor {
 /**
  * Converts string grace period type to enum
  */
-function stringToGracePeriodType(type: string): EnumGracePeriodType {
+export function stringToGracePeriodType(type: string): EnumGracePeriodType {
   switch (type) {
     case 'none': return EnumGracePeriodType.none;
     case 'partial': return EnumGracePeriodType.partial;
