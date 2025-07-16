@@ -179,6 +179,12 @@ export default async function CashFlowDetailPage({
         const result = calculateFrenchMethod(formData);
         schedule = result.periods;
         summary = result.summary;
+    } else if (formData.amortizationMethod === AmortizationMethod.american) {
+        // Importar dinámicamente el método americano
+        const { calculateAmericanMethod } = await import("@/lib/american-method");
+        const result = calculateAmericanMethod(formData);
+        schedule = result.periods;
+        summary = result.summary;
     } else {
         const result = calculateGermanMethod(formData);
         schedule = result.periods;
