@@ -66,7 +66,7 @@ function getFrequencyDays(frequency: PaymentFrequency): number {
     case PaymentFrequency.daily: return 1;
     case PaymentFrequency.monthly: return 30;
     case PaymentFrequency.bimonthly: return 60;
-    case PaymentFrequency.quarterly: return 90;
+    case PaymentFrequency.quarterly: return 120; // 4 meses
     case PaymentFrequency.semi_annual: return 180;
     case PaymentFrequency.annual: return 360;
     default: return 180;
