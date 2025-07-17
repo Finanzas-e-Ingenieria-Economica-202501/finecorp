@@ -329,7 +329,7 @@ export default function NewCashFlowPage() {
                                                     Semestral
                                                 </SelectItem>
                                                 <SelectItem value={CompoundingFrequency.quarterly}>
-                                                    Trimestral
+                                                    Cuatrimestal
                                                 </SelectItem>
                                                 <SelectItem value={CompoundingFrequency.bimonthly}>
                                                     Bimestral

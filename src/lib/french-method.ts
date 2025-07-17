@@ -191,17 +191,18 @@ export function calculateFrenchMethod(data: CashFlowFormData): FrenchMethodResul
   const incomeTax = new Decimal(data.income_tax);
   const prima = new Decimal(data.prima || 0);
 
-  // Calculate basic parameters
-  const periodsPerYear = getPeriodsPerYear(data.paymentFrequency, data.daysPerYear);
+  // Forzar frecuencia de pago a cuatrimestral (4 meses)
+  const forcedPaymentFrequency = PaymentFrequency.quarterly;
+  const periodsPerYear = getPeriodsPerYear(forcedPaymentFrequency, data.daysPerYear);
   const totalPeriods = new Decimal(data.years).mul(periodsPerYear).toNumber();
-  const frequencyDays = getFrequencyDays(data.paymentFrequency);
+  const frequencyDays = getFrequencyDays(forcedPaymentFrequency);
 
-  // Calculate effective period rates
+  // Calcular tasa efectiva del periodo usando la frecuencia forzada
   const effectivePeriodRate = calculateEffectivePeriodRate(
     interestRate,
     data.interestRateType,
     data.compoundingFrequency,
-    data.paymentFrequency,
+    forcedPaymentFrequency,
     data.daysPerYear
   );
 
@@ -211,8 +212,8 @@ export function calculateFrenchMethod(data: CashFlowFormData): FrenchMethodResul
   // Calculate effective annual rate for display
   const effectiveAnnualRate = new Decimal(1).plus(effectivePeriodRate).pow(periodsPerYear).minus(1);
 
-  // Generate payment dates
-  const paymentDates = generatePaymentDates(data.emissionDate, totalPeriods, data.paymentFrequency);
+  // Generar fechas de pago usando la frecuencia forzada
+  const paymentDates = generatePaymentDates(data.emissionDate, totalPeriods, forcedPaymentFrequency);
 
   // Count non-grace periods for French method amortization
   let nonGracePeriods = totalPeriods;
